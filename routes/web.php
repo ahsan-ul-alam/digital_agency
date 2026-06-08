@@ -1,0 +1,75 @@
+<?php
+
+use App\Http\Controllers\Admin\ContentController;
+use App\Http\Controllers\Admin\CloudinaryController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\FormBuilderController;
+use App\Http\Controllers\Admin\MediaController;
+use App\Http\Controllers\Admin\MenuController;
+use App\Http\Controllers\Admin\PageBuilderController;
+use App\Http\Controllers\Admin\SiteSettingsController;
+use App\Http\Controllers\Admin\ThemeController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Public\FormSubmissionController;
+use App\Http\Controllers\Public\SiteController;
+use Illuminate\Support\Facades\Route;
+
+Route::get('/', [SiteController::class, 'home'])->name('home');
+Route::get('/about', [SiteController::class, 'about'])->name('about');
+Route::get('/services', [SiteController::class, 'services'])->name('services.index');
+Route::get('/services/{service:slug}', [SiteController::class, 'service'])->name('services.show');
+Route::get('/packages', [SiteController::class, 'packages'])->name('packages.index');
+Route::get('/portfolio', [SiteController::class, 'portfolio'])->name('portfolio.index');
+Route::get('/portfolio/{portfolio:slug}', [SiteController::class, 'project'])->name('portfolio.show');
+Route::get('/blog', [SiteController::class, 'blog'])->name('blog.index');
+Route::get('/blog/{post:slug}', [SiteController::class, 'post'])->name('blog.show');
+Route::get('/contact', [SiteController::class, 'contact'])->name('contact');
+Route::post('/contact', [SiteController::class, 'submitContact'])->name('contact.submit');
+Route::post('/forms/{form:shortcode}', [FormSubmissionController::class, 'store'])->name('forms.submit');
+Route::get('/sitemap.xml', [SiteController::class, 'sitemap'])->name('sitemap');
+Route::get('/robots.txt', [SiteController::class, 'robots'])->name('robots');
+Route::get('/login', [AuthController::class, 'login'])->middleware('guest')->name('login');
+Route::post('/login', [AuthController::class, 'authenticate'])->middleware('guest')->name('login.authenticate');
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
+
+Route::prefix('admin')->middleware('auth')->name('admin.')->group(function () {
+    Route::get('/', DashboardController::class)->name('dashboard');
+    Route::redirect('/settings', '/admin/site/settings');
+    Route::get('/site/settings', [SiteSettingsController::class, 'edit'])->name('site.edit');
+    Route::put('/site/settings', [SiteSettingsController::class, 'update'])->name('site.update');
+    Route::post('/site/settings', [SiteSettingsController::class, 'update']);
+    Route::get('/menus', [MenuController::class, 'edit'])->name('menus.edit');
+    Route::put('/menus', [MenuController::class, 'update'])->name('menus.update');
+    Route::post('/menus', [MenuController::class, 'update']);
+    Route::get('/cloudinary/settings', [CloudinaryController::class, 'edit'])->name('cloudinary.edit');
+    Route::put('/cloudinary/settings', [CloudinaryController::class, 'update'])->name('cloudinary.update');
+    Route::post('/cloudinary/test', [CloudinaryController::class, 'test'])->name('cloudinary.test');
+    Route::get('/theme/settings', [ThemeController::class, 'edit'])->name('theme.edit');
+    Route::put('/theme/settings', [ThemeController::class, 'update'])->name('theme.update');
+    Route::get('/media', [MediaController::class, 'index'])->name('media.index');
+    Route::get('/media/picker', [MediaController::class, 'picker'])->name('media.picker');
+    Route::post('/editor/upload', [MediaController::class, 'editorUpload'])->name('editor.upload');
+    Route::post('/media', [MediaController::class, 'store'])->name('media.store');
+    Route::put('/media/{mediaItem}', [MediaController::class, 'update'])->name('media.update');
+    Route::delete('/media/{mediaItem}', [MediaController::class, 'destroy'])->name('media.destroy');
+    Route::get('/pages/create', [PageBuilderController::class, 'create'])->name('pages.create');
+    Route::post('/pages', [PageBuilderController::class, 'store'])->name('pages.store');
+    Route::get('/pages/{page}/builder', [PageBuilderController::class, 'builder'])->name('pages.builder');
+    Route::put('/pages/{page}/builder', [PageBuilderController::class, 'update'])->name('pages.builder.update');
+    Route::get('/forms', [FormBuilderController::class, 'index'])->name('forms.index');
+    Route::get('/forms/create', [FormBuilderController::class, 'create'])->name('forms.create');
+    Route::post('/forms', [FormBuilderController::class, 'store'])->name('forms.store');
+    Route::get('/forms/{form}/edit', [FormBuilderController::class, 'edit'])->name('forms.edit');
+    Route::put('/forms/{form}', [FormBuilderController::class, 'update'])->name('forms.update');
+    Route::delete('/forms/{form}', [FormBuilderController::class, 'destroy'])->name('forms.destroy');
+    Route::get('/forms/{form}/submissions', [FormBuilderController::class, 'submissions'])->name('forms.submissions');
+    Route::post('/form-submissions/{submission}/read', [FormBuilderController::class, 'markRead'])->name('forms.submissions.read');
+    Route::get('/{module}', [ContentController::class, 'index'])->name('modules.index');
+    Route::get('/{module}/create', [ContentController::class, 'create'])->name('modules.create');
+    Route::post('/{module}', [ContentController::class, 'store'])->name('modules.store');
+    Route::get('/{module}/{id}/edit', [ContentController::class, 'edit'])->name('modules.edit');
+    Route::put('/{module}/{id}', [ContentController::class, 'update'])->name('modules.update');
+    Route::delete('/{module}/{id}', [ContentController::class, 'destroy'])->name('modules.destroy');
+});
+
+Route::get('/{page:slug}', [SiteController::class, 'page'])->name('pages.show');
