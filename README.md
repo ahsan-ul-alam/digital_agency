@@ -32,7 +32,7 @@ A full-stack agency website and content management system built for **AR Soft BD
 ### 1. Clone and install dependencies
 
 ```bash
-git clone <repository-url> arsoftbd
+git clone https://github.com/ahsan-ul-alam/digital_agency.git arsoftbd
 cd arsoftbd
 
 composer install
