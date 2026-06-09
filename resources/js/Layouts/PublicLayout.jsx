@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Head, Link, usePage } from '../app';
 import AdminEditBar from '../Components/AdminEditBar';
 import SeoHead from '../Components/SeoHead';
@@ -99,6 +100,101 @@ export default function PublicLayout({ settings = {}, seo, title, children }) {
         ? 'md:grid-cols-2 xl:grid-cols-4'
         : 'md:grid-cols-2 lg:grid-cols-3';
 
+    const closeMobileMenu = () => setMobileOpen(false);
+
+    useEffect(() => {
+        if (!mobileOpen) {
+            return undefined;
+        }
+
+        const onKeyDown = (event) => {
+            if (event.key === 'Escape') {
+                setMobileOpen(false);
+            }
+        };
+
+        document.body.style.overflow = 'hidden';
+        document.body.classList.add('public-nav-open');
+        window.addEventListener('keydown', onKeyDown);
+
+        return () => {
+            document.body.style.overflow = '';
+            document.body.classList.remove('public-nav-open');
+            window.removeEventListener('keydown', onKeyDown);
+        };
+    }, [mobileOpen]);
+
+    const mobileDrawer = mobileOpen ? (
+        <div className="public-nav-drawer-overlay">
+            <button
+                type="button"
+                className="public-nav-drawer-backdrop"
+                onClick={closeMobileMenu}
+                aria-label="Close menu"
+            />
+            <aside
+                id="public-nav-drawer"
+                className="public-nav-drawer"
+                role="dialog"
+                aria-modal="true"
+                aria-label="Site navigation"
+            >
+                <div className="public-nav-drawer-shell">
+                    <header className="public-nav-drawer-head">
+                        <Link href="/" className="public-nav-drawer-logo" onClick={closeMobileMenu}>
+                            {site.logo ? (
+                                <img
+                                    src={site.logo}
+                                    alt={site.name || 'Site logo'}
+                                    className="public-site-logo-img"
+                                />
+                            ) : (
+                                <>
+                                    <span className="public-site-logo-mark">AR</span>
+                                    <span className="public-site-logo-name">{site.name || 'SOFT BD'}</span>
+                                </>
+                            )}
+                        </Link>
+                        <button
+                            type="button"
+                            className="public-nav-drawer-close"
+                            onClick={closeMobileMenu}
+                            aria-label="Close menu"
+                        >
+                            <RiCloseLine />
+                        </button>
+                    </header>
+
+                    <div className="public-nav-drawer-scroll">
+                        <p className="public-nav-drawer-eyebrow">Navigation</p>
+                        <nav className="public-nav-drawer-links">
+                            {headerItems.map((item) => (
+                                <MenuLink
+                                    key={item.id}
+                                    item={item}
+                                    className="public-nav-drawer-item"
+                                    onClick={closeMobileMenu}
+                                />
+                            ))}
+                        </nav>
+                    </div>
+
+                    {cta.is_active !== false && cta.label && (
+                        <footer className="public-nav-drawer-footer">
+                            <MenuLink
+                                item={{ ...cta, target: '_self' }}
+                                className="public-nav-drawer-cta sw-btn sw-btn-primary"
+                                onClick={closeMobileMenu}
+                            >
+                                <>{cta.label} <RiArrowRightLine /></>
+                            </MenuLink>
+                        </footer>
+                    )}
+                </div>
+            </aside>
+        </div>
+    ) : null;
+
     return (
         <>
             <SeoHead seo={seo} />
@@ -108,74 +204,65 @@ export default function PublicLayout({ settings = {}, seo, title, children }) {
                 </Head>
             )}
             <ThemeStyles theme={theme} />
-            <AdminEditBar />
             <div className="min-h-screen overflow-hidden">
-                <header className="public-site-header sticky top-0 z-50 w-full border-b border-white/10 backdrop-blur-xl" style={{ background: `color-mix(in srgb, var(--color-background) 85%, transparent)` }}>
-                    <nav className="public-site-nav site-container flex items-center justify-between gap-4 py-3.5">
-                        <Link href="/" className="flex items-center gap-3">
-                            {site.logo ? (
-                                <img src={site.logo} alt={site.name || 'Site logo'} className="h-10 w-auto max-w-[180px] object-contain" />
-                            ) : (
-                                <>
-                                    <span className="btn-primary grid h-10 w-10 place-items-center rounded-2xl text-sm font-black">AR</span>
-                                    <span>
-                                        <span className="block text-sm font-semibold tracking-[0.28em] text-primary">{site.name || 'SOFT BD'}</span>
-                                        <span className="text-xs text-muted">{site.tagline || 'Software Agency'}</span>
-                                    </span>
-                                </>
-                            )}
-                        </Link>
-
-                        <div className="public-site-nav-links hidden min-w-0 flex-1 items-center justify-center gap-5 text-sm text-muted xl:gap-6 lg:flex">
-                            {headerItems.map((item) => (
-                                <MenuLink key={item.id} item={item} className="whitespace-nowrap transition hover:text-white" />
-                            ))}
-                        </div>
-
-                        <div className="public-site-nav-actions flex shrink-0 items-center gap-3">
-                            {cta.is_active !== false && cta.label && (
-                                <MenuLink
-                                    item={{ ...cta, target: '_self' }}
-                                    className="sw-btn sw-btn-primary hidden sm:inline-flex"
-                                >
-                                    <>{cta.label} <RiArrowRightLine /></>
-                                </MenuLink>
-                            )}
-                            <button
-                                type="button"
-                                className="rounded-xl border border-white/10 p-2 text-xl text-muted lg:hidden"
-                                onClick={() => setMobileOpen(!mobileOpen)}
-                                aria-label="Toggle menu"
-                            >
-                                {mobileOpen ? <RiCloseLine /> : <RiMenuLine />}
-                            </button>
-                        </div>
-                    </nav>
-
-                    {mobileOpen && (
-                        <div className="site-container border-t border-white/10 py-4 lg:hidden">
-                            <div className="grid gap-2">
-                                {headerItems.map((item) => (
-                                    <MenuLink
-                                        key={item.id}
-                                        item={item}
-                                        className="rounded-xl px-4 py-3 text-sm text-muted hover:bg-white/5 hover:text-white"
-                                        onClick={() => setMobileOpen(false)}
+                <div className="public-site-chrome">
+                    <AdminEditBar />
+                    <header
+                        className={`public-site-header w-full border-b border-white/10 backdrop-blur-xl${mobileOpen ? ' is-menu-open' : ''}`}
+                        style={{ background: `color-mix(in srgb, var(--color-background) 85%, transparent)` }}
+                    >
+                        <nav className="public-site-nav site-container flex items-center justify-between gap-3">
+                            <Link href="/" className="public-site-logo" onClick={mobileOpen ? closeMobileMenu : undefined}>
+                                {site.logo ? (
+                                    <img
+                                        src={site.logo}
+                                        alt={site.name || 'Site logo'}
+                                        className="public-site-logo-img"
                                     />
+                                ) : (
+                                    <>
+                                        <span className="public-site-logo-mark">AR</span>
+                                        <span className="public-site-logo-text">
+                                            <span className="public-site-logo-name">{site.name || 'SOFT BD'}</span>
+                                            <span className="public-site-logo-tagline">{site.tagline || 'Software Agency'}</span>
+                                        </span>
+                                    </>
+                                )}
+                            </Link>
+
+                            <div className="public-site-nav-links min-w-0 flex-1 items-center justify-center gap-4 text-sm text-muted xl:gap-6">
+                                {headerItems.map((item) => (
+                                    <MenuLink key={item.id} item={item} className="whitespace-nowrap transition hover:text-white" />
                                 ))}
+                            </div>
+
+                            <div className="public-site-nav-actions flex shrink-0 items-center">
                                 {cta.is_active !== false && cta.label && (
                                     <MenuLink
                                         item={{ ...cta, target: '_self' }}
-                                        className="btn-primary mt-2 rounded-full px-4 py-3 text-center text-sm font-semibold"
-                                        onClick={() => setMobileOpen(false)}
+                                        className="public-site-header-cta sw-btn sw-btn-primary"
                                     >
-                                        {cta.label}
+                                        <>{cta.label} <RiArrowRightLine /></>
                                     </MenuLink>
                                 )}
+                                <button
+                                    type="button"
+                                    className="public-nav-toggle"
+                                    onClick={() => setMobileOpen(!mobileOpen)}
+                                    aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+                                    aria-expanded={mobileOpen}
+                                    aria-controls="public-nav-drawer"
+                                >
+                                    {mobileOpen ? <RiCloseLine /> : <RiMenuLine />}
+                                </button>
                             </div>
-                        </div>
-                    )}
-                </header>
+                        </nav>
+                    </header>
+                </div>
+
+                {typeof document !== 'undefined' && mobileDrawer
+                    ? createPortal(mobileDrawer, document.body)
+                    : null}
                 <main>{children}</main>
                 <footer className="border-t border-white/10 py-12">
                     <div className={`site-container grid gap-8 ${footerGridClass}`}>

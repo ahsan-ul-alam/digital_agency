@@ -137,8 +137,29 @@ export default function SoftwareProductShowcase({ variant = 'default' }) {
             <div className="sw-window">
                 <div className="sw-titlebar">
                     <span className="sw-dot" /><span className="sw-dot" /><span className="sw-dot" />
-                    <span className="sw-titlebar-label">AR Soft BD · Business Platform</span>
+                    <span className="sw-titlebar-label">
+                        <span className="sw-titlebar-label-full">AR Soft BD · Business Platform</span>
+                        <span className="sw-titlebar-label-short">AR Soft BD Platform</span>
+                    </span>
                     <span className="sw-live"><span className="sw-live-pulse" /> Live</span>
+                </div>
+
+                <div className="sw-mobile-tabs" role="tablist" aria-label="Console modules">
+                    {MODULES.map((m) => {
+                        const ModIcon = m.icon;
+                        return (
+                            <button
+                                key={m.id}
+                                type="button"
+                                role="tab"
+                                aria-selected={active === m.id}
+                                className={`sw-mobile-tab${active === m.id ? ' is-active' : ''}`}
+                                onClick={() => setActive(m.id)}
+                            >
+                                <ModIcon /> <span>{m.label.replace(' Console', '').replace(' Pipeline', '').replace(' Ops', '')}</span>
+                            </button>
+                        );
+                    })}
                 </div>
 
                 <div className="sw-body">

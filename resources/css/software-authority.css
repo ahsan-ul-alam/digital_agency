@@ -100,12 +100,138 @@ body:has(.admin-edit-bar) .sw-hero {
 
 @media (max-width: 1099px) {
     .sw-hero {
-        min-height: calc(100svh - var(--public-header-h));
-        padding-block: 2rem;
+        min-height: auto;
+        padding-block: clamp(2rem, 6vw, 3.5rem);
+        align-items: flex-start;
     }
 
     body:has(.admin-edit-bar) .sw-hero {
-        min-height: calc(100svh - var(--public-header-h) - var(--public-admin-bar-h));
+        min-height: auto;
+    }
+
+    .sw-hero-inner {
+        gap: clamp(1.75rem, 5vw, 2.5rem);
+    }
+
+    .sw-hero-copy {
+        justify-content: flex-start;
+    }
+
+    .sw-showcase--hero .sw-window {
+        min-height: 0;
+    }
+
+    .sw-showcase--hero .sw-body {
+        height: auto;
+        min-height: 28rem;
+        max-height: none;
+    }
+
+    .sw-showcase--hero .sw-main-body-slot {
+        height: auto;
+        min-height: 0;
+        max-height: none;
+    }
+
+    .sw-showcase--hero .sw-main-body {
+        position: relative;
+        inset: auto;
+    }
+}
+
+@media (max-width: 991px) {
+    .sw-mobile-tabs {
+        display: flex;
+        gap: 0.4rem;
+        padding: 0.55rem 0.75rem;
+        overflow-x: auto;
+        scrollbar-width: none;
+        border-bottom: 1px solid color-mix(in srgb, white 8%, transparent);
+        background: color-mix(in srgb, white 2%, transparent);
+    }
+
+    .sw-mobile-tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    .sw-sidebar {
+        display: none;
+    }
+
+    .sw-body {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 767px) {
+    .sw-hero {
+        padding-block: clamp(1.5rem, 5vw, 2.25rem);
+    }
+
+    .sw-hero-badge {
+        font-size: 0.64rem;
+        letter-spacing: 0.04em;
+        max-width: 100%;
+        white-space: normal;
+        text-align: left;
+    }
+
+    .sw-hero-title {
+        margin-top: 1rem;
+        font-size: clamp(1.7rem, 7.5vw, 2.4rem);
+    }
+
+    .sw-hero-lead {
+        margin-top: 0.85rem;
+        font-size: 0.98rem;
+        line-height: 1.65;
+        max-width: none;
+    }
+
+    .sw-hero-cta {
+        flex-direction: column;
+        align-items: stretch;
+        margin-top: 1.5rem;
+        gap: 0.65rem;
+    }
+
+    .sw-hero-cta .sw-btn {
+        width: 100%;
+        justify-content: center;
+        padding: 0.85rem 1.25rem;
+    }
+
+    .sw-hero-proof {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1rem 0.65rem;
+        margin-top: 1.75rem;
+        padding-top: 1.5rem;
+    }
+
+    .sw-hero-proof dt {
+        font-size: 0.58rem;
+        letter-spacing: 0.08em;
+        line-height: 1.35;
+    }
+
+    .sw-hero-proof dd {
+        font-size: clamp(1.35rem, 5vw, 1.65rem);
+    }
+
+    .sw-hero-stage {
+        width: 100%;
+        overflow: hidden;
+    }
+}
+
+@media (max-width: 420px) {
+    .sw-hero-proof {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .sw-hero-proof > div:last-child:nth-child(3) {
+        grid-column: 1 / -1;
     }
 }
 
@@ -259,7 +385,44 @@ body:has(.admin-edit-bar) .sw-hero {
 }
 
 .sw-dot { width: 0.55rem; height: 0.55rem; border-radius: 999px; background: color-mix(in srgb, white 20%, transparent); }
-.sw-titlebar-label { margin-left: 0.5rem; font-size: 0.68rem; color: color-mix(in srgb, white 55%, transparent); flex: 1; }
+.sw-titlebar-label {
+    margin-left: 0.5rem;
+    font-size: 0.68rem;
+    color: color-mix(in srgb, white 55%, transparent);
+    flex: 1;
+    min-width: 0;
+}
+.sw-titlebar-label-short { display: none; }
+
+.sw-mobile-tabs {
+    display: none;
+}
+
+.sw-mobile-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-shrink: 0;
+    padding: 0.45rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: color-mix(in srgb, white 55%, transparent);
+    border: 1px solid color-mix(in srgb, white 10%, transparent);
+    background: color-mix(in srgb, white 3%, transparent);
+    white-space: nowrap;
+}
+
+.sw-mobile-tab.is-active {
+    color: white;
+    border-color: color-mix(in srgb, var(--color-primary) 45%, transparent);
+    background: color-mix(in srgb, var(--color-primary) 28%, transparent);
+}
+
+.sw-mobile-tab svg {
+    font-size: 0.95rem;
+    flex-shrink: 0;
+}
 .sw-live { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.62rem; font-weight: 700; color: #4ade80; text-transform: uppercase; }
 .sw-live-pulse { width: 0.4rem; height: 0.4rem; border-radius: 999px; background: #4ade80; animation: sw-pulse 2s ease infinite; }
 
@@ -276,18 +439,137 @@ body:has(.admin-edit-bar) .sw-hero {
     max-height: 26rem;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
+    .sw-titlebar-label-full { display: none; }
+    .sw-titlebar-label-short { display: inline; }
+
     .sw-body {
-        grid-template-columns: 1fr;
-        height: 24rem;
-        min-height: 24rem;
-        max-height: 24rem;
+        height: auto;
+        min-height: 0;
+        max-height: none;
     }
-    .sw-sidebar { display: none; }
+
+    .sw-window {
+        border-radius: 1rem;
+        box-shadow: 0 20px 50px color-mix(in srgb, black 35%, transparent);
+    }
+
+    .sw-main {
+        padding: 0.75rem;
+        gap: 0.65rem;
+    }
+
+    .sw-main-head {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        min-height: auto;
+        gap: 0.5rem;
+    }
+
+    .sw-main-head h3 {
+        font-size: 0.85rem;
+    }
+
+    .sw-head-actions span {
+        display: none;
+    }
+
     .sw-main-body-slot {
-        height: 18.5rem;
-        min-height: 18.5rem;
-        max-height: 18.5rem;
+        height: auto;
+        min-height: 0;
+        max-height: none;
+    }
+
+    .sw-main-body {
+        position: relative;
+        inset: auto;
+        display: grid;
+        gap: 0.65rem;
+    }
+
+    .sw-kpis {
+        height: auto;
+        min-height: auto;
+        gap: 0.4rem;
+    }
+
+    .sw-kpi {
+        padding: 0.5rem 0.55rem;
+    }
+
+    .sw-kpi strong {
+        font-size: 0.92rem;
+    }
+
+    .sw-dashboard-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+        height: auto;
+        min-height: auto;
+        max-height: none;
+        gap: 0.45rem;
+    }
+
+    .sw-chart-panel,
+    .sw-table-panel,
+    .sw-feed-panel {
+        grid-row: auto;
+        grid-column: auto;
+    }
+
+    .sw-bars {
+        height: 5rem;
+        min-height: 5rem;
+        max-height: 5rem;
+    }
+
+    .sw-feed {
+        grid-template-columns: 1fr;
+        height: auto;
+    }
+
+    .sw-feed li {
+        white-space: normal;
+        font-size: 0.58rem;
+        line-height: 1.35;
+    }
+
+    .sw-showcase {
+        overflow: visible;
+    }
+
+    .sw-showcase--hero .sw-window {
+        min-height: 0;
+    }
+
+    .sw-showcase--hero .sw-main-body {
+        position: relative;
+        inset: auto;
+    }
+
+    .sw-showcase--hero .sw-kpis {
+        height: auto;
+        min-height: auto;
+    }
+
+    .sw-showcase--hero .sw-dashboard-grid {
+        flex: none;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+    }
+
+    .sw-showcase--hero .sw-bars {
+        min-height: 5rem;
+        max-height: 5rem;
+    }
+
+    .sw-showcase--hero .sw-feed {
+        grid-template-columns: 1fr;
+    }
+
+    .sw-floating-metrics {
+        display: none !important;
     }
 }
 
@@ -708,13 +990,41 @@ body:has(.admin-edit-bar) .sw-hero {
     color: color-mix(in srgb, white 88%, transparent);
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
     .sw-status-strip {
         grid-template-columns: repeat(2, 1fr);
+        gap: 0.4rem;
     }
 
-    .sw-showcase--hero .sw-feed {
-        grid-template-columns: 1fr;
+    .sw-status-item {
+        padding: 0.45rem 0.55rem;
+    }
+
+    .sw-table td {
+        font-size: 0.55rem;
+        padding: 0.3rem 0.2rem;
+    }
+
+    .sw-table tr:nth-child(n + 4) {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .sw-titlebar {
+        padding: 0.55rem 0.75rem;
+    }
+
+    .sw-live {
+        font-size: 0.58rem;
+    }
+
+    .sw-module-tag {
+        font-size: 0.58rem;
+    }
+
+    .sw-head-actions button {
+        display: none;
     }
 }
 
