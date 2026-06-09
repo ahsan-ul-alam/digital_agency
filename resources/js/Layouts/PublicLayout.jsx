@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Head, Link, usePage } from '../app';
 import AdminEditBar from '../Components/AdminEditBar';
+import SeoHead from '../Components/SeoHead';
 import { ThemeStyles } from '../Components/Public';
 import {
     RiArrowRightLine,
@@ -74,7 +75,7 @@ function MenuLink({ item, className, onClick, children }) {
     );
 }
 
-export default function PublicLayout({ settings = {}, title, children }) {
+export default function PublicLayout({ settings = {}, seo, title, children }) {
     const [mobileOpen, setMobileOpen] = useState(false);
     const { siteBranding = {}, theme: sharedTheme = {}, menus: sharedMenus = {} } = usePage().props;
     const site = { ...siteBranding, ...(settings.site || {}) };
@@ -100,14 +101,17 @@ export default function PublicLayout({ settings = {}, title, children }) {
 
     return (
         <>
-            <Head title={title || site.name || 'AR Soft BD'}>
-                {site.favicon && <link rel="icon" href={site.favicon} />}
-            </Head>
+            <SeoHead seo={seo} />
+            {site.favicon && (
+                <Head>
+                    <link rel="icon" href={site.favicon} />
+                </Head>
+            )}
             <ThemeStyles theme={theme} />
             <AdminEditBar />
             <div className="min-h-screen overflow-hidden">
-                <header className="public-site-header sticky top-0 z-50 border-b border-white/10 backdrop-blur-xl" style={{ background: `color-mix(in srgb, var(--color-background) 85%, transparent)` }}>
-                    <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+                <header className="public-site-header sticky top-0 z-50 w-full border-b border-white/10 backdrop-blur-xl" style={{ background: `color-mix(in srgb, var(--color-background) 85%, transparent)` }}>
+                    <nav className="public-site-nav site-container flex items-center justify-between gap-4 py-3.5">
                         <Link href="/" className="flex items-center gap-3">
                             {site.logo ? (
                                 <img src={site.logo} alt={site.name || 'Site logo'} className="h-10 w-auto max-w-[180px] object-contain" />
@@ -122,17 +126,17 @@ export default function PublicLayout({ settings = {}, title, children }) {
                             )}
                         </Link>
 
-                        <div className="hidden items-center gap-7 text-sm text-muted lg:flex">
+                        <div className="public-site-nav-links hidden min-w-0 flex-1 items-center justify-center gap-5 text-sm text-muted xl:gap-6 lg:flex">
                             {headerItems.map((item) => (
-                                <MenuLink key={item.id} item={item} className="transition hover:text-white" />
+                                <MenuLink key={item.id} item={item} className="whitespace-nowrap transition hover:text-white" />
                             ))}
                         </div>
 
-                        <div className="flex items-center gap-3">
+                        <div className="public-site-nav-actions flex shrink-0 items-center gap-3">
                             {cta.is_active !== false && cta.label && (
                                 <MenuLink
                                     item={{ ...cta, target: '_self' }}
-                                    className="btn-primary hidden items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold sm:inline-flex"
+                                    className="sw-btn sw-btn-primary hidden sm:inline-flex"
                                 >
                                     <>{cta.label} <RiArrowRightLine /></>
                                 </MenuLink>
@@ -149,7 +153,7 @@ export default function PublicLayout({ settings = {}, title, children }) {
                     </nav>
 
                     {mobileOpen && (
-                        <div className="border-t border-white/10 px-6 py-4 lg:hidden">
+                        <div className="site-container border-t border-white/10 py-4 lg:hidden">
                             <div className="grid gap-2">
                                 {headerItems.map((item) => (
                                     <MenuLink
@@ -173,8 +177,8 @@ export default function PublicLayout({ settings = {}, title, children }) {
                     )}
                 </header>
                 <main>{children}</main>
-                <footer className="border-t border-white/10 px-6 py-12">
-                    <div className={`mx-auto grid max-w-7xl gap-8 ${footerGridClass}`}>
+                <footer className="border-t border-white/10 py-12">
+                    <div className={`site-container grid gap-8 ${footerGridClass}`}>
                         <div className="footer-brand">
                             {showLogo && site.logo ? (
                                 <Link href="/" className="inline-flex">
@@ -211,7 +215,7 @@ export default function PublicLayout({ settings = {}, title, children }) {
                             </div>
                         )}
                     </div>
-                    <p className="mx-auto mt-10 max-w-7xl text-sm text-muted">
+                    <p className="site-container mt-10 text-sm text-muted">
                         {copyright || `Copyright ${new Date().getFullYear()} ${site.name || 'AR Soft BD'}. All rights reserved.`}
                     </p>
                 </footer>

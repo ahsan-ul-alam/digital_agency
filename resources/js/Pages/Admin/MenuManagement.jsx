@@ -1,9 +1,16 @@
-import { useState } from 'react';
 import { Reorder, useDragControls } from 'framer-motion';
 import AdminLayout from '../../Layouts/AdminLayout';
-import { Input, Select, Checkbox } from '../../Components/Form';
+import SalesEditorShell from '../../Components/Admin/SalesEditorShell';
+import { FieldShell, ToggleField } from '../../Components/Cms/fields';
+import { Input, Select } from '../../Components/Form';
 import { useForm } from '../../app';
-import { RiAddLine, RiDeleteBinLine, RiDragMove2Line } from 'react-icons/ri';
+import { RiAddLine, RiDeleteBinLine, RiDragMove2Line, RiLayoutTopLine, RiLink, RiMenuLine } from 'react-icons/ri';
+
+const TABS = [
+    { id: 'header', title: 'Header', hint: 'Main navigation links', icon: RiMenuLine, panelTitle: 'Header navigation', panelHint: 'Drag to reorder. Only visible items appear in the site header.' },
+    { id: 'cta', title: 'CTA', hint: 'Header call-to-action', icon: RiLink, panelTitle: 'Header CTA button', panelHint: 'Primary action button in the navigation bar.' },
+    { id: 'footer', title: 'Footer', hint: 'Columns and options', icon: RiLayoutTopLine, panelTitle: 'Footer menus', panelHint: 'Footer columns, logo, social and contact blocks.' },
+];
 
 function newItem(label = 'New link', url = '/') {
     return {
@@ -17,31 +24,26 @@ function newItem(label = 'New link', url = '/') {
 
 function SortableMenuItem({ item, onChange, onRemove, dragControls, quickLinks }) {
     return (
-        <Reorder.Item value={item} dragListener={false} dragControls={dragControls} className="menu-item-card list-none">
+        <Reorder.Item value={item} dragListener={false} dragControls={dragControls} className="menu-item-card resource-editor-card">
             <button type="button" className="menu-drag-handle" onPointerDown={(e) => dragControls.start(e)}>
                 <RiDragMove2Line />
             </button>
-            <div className="grid flex-1 gap-3 sm:grid-cols-2">
-                <label className="grid gap-1">
-                    <span className="text-xs font-medium text-muted">Label</span>
+            <div className="cms-form-grid menu-item-grid">
+                <FieldShell label="Label">
                     <Input value={item.label} onChange={(e) => onChange({ ...item, label: e.target.value })} />
-                </label>
-                <label className="grid gap-1">
-                    <span className="text-xs font-medium text-muted">URL</span>
-                    <Input value={item.url} onChange={(e) => onChange({ ...item, url: e.target.value })} placeholder="/about or https://..." />
-                </label>
-                <label className="grid gap-1">
-                    <span className="text-xs font-medium text-muted">Open in</span>
+                </FieldShell>
+                <FieldShell label="URL" hint="Path or full URL.">
+                    <Input value={item.url} onChange={(e) => onChange({ ...item, url: e.target.value })} placeholder="/about" />
+                </FieldShell>
+                <FieldShell label="Open in">
                     <Select value={item.target || '_self'} onChange={(e) => onChange({ ...item, target: e.target.value })}>
                         <option value="_self">Same tab</option>
                         <option value="_blank">New tab</option>
                     </Select>
-                </label>
-                <label className="flex items-end">
-                    <Checkbox label="Visible" checked={item.is_active !== false} onChange={(e) => onChange({ ...item, is_active: e.target.checked })} />
-                </label>
+                </FieldShell>
+                <ToggleField label="Visible" checked={item.is_active !== false} onChange={(v) => onChange({ ...item, is_active: v })} />
             </div>
-            <div className="grid gap-2">
+            <div className="menu-item-actions">
                 <Select
                     value=""
                     onChange={(e) => {
@@ -50,13 +52,13 @@ function SortableMenuItem({ item, onChange, onRemove, dragControls, quickLinks }
                         if (link) onChange({ ...item, label: link.label, url: link.url });
                     }}
                 >
-                    <option value="">Insert quick link...</option>
+                    <option value="">Insert quick link…</option>
                     {quickLinks.map((link) => (
                         <option key={link.url} value={link.url}>{link.label}</option>
                     ))}
                 </Select>
-                <button type="button" onClick={onRemove} className="text-sm text-rose-300 hover:text-rose-200">
-                    <RiDeleteBinLine className="inline" /> Remove
+                <button type="button" onClick={onRemove} className="cms-list-remove">
+                    <RiDeleteBinLine /> Remove
                 </button>
             </div>
         </Reorder.Item>
@@ -78,11 +80,11 @@ function MenuItemList({ items, onChange, quickLinks }) {
     }
 
     return (
-        <div className="grid gap-3">
-            <Reorder.Group axis="y" values={items} onReorder={onChange} className="grid gap-3">
+        <div className="menu-item-list">
+            <Reorder.Group axis="y" values={items} onReorder={onChange} className="menu-item-list-group">
                 {items.map((item) => <SortableRow key={item.id} item={item} />)}
             </Reorder.Group>
-            <button type="button" onClick={() => onChange([...items, newItem()])} className="btn-outline inline-flex w-fit items-center gap-2 rounded-full px-4 py-2 text-sm">
+            <button type="button" onClick={() => onChange([...items, newItem()])} className="cms-list-add">
                 <RiAddLine /> Add menu item
             </button>
         </div>
@@ -92,7 +94,6 @@ function MenuItemList({ items, onChange, quickLinks }) {
 export default function MenuManagement({ menus, pageLinks, systemLinks }) {
     const quickLinks = [...systemLinks, ...pageLinks];
     const form = useForm({ menus });
-    const [tab, setTab] = useState('header');
 
     function updateHeaderItems(items) {
         form.setData('menus', { ...form.data.menus, header: { ...form.data.menus.header, items } });
@@ -131,113 +132,80 @@ export default function MenuManagement({ menus, pageLinks, systemLinks }) {
         form.put('/admin/menus');
     }
 
-    const tabs = [
-        ['header', 'Header Menu'],
-        ['cta', 'Header CTA'],
-        ['footer', 'Footer'],
-    ];
+    const visibleHeader = form.data.menus.header.items.filter((i) => i.is_active !== false).length;
 
     return (
         <AdminLayout title="Menu Management" subtitle="Control header navigation, footer columns, and call-to-action buttons.">
-            <form onSubmit={submit} className="grid max-w-5xl gap-6">
-                <div className="menu-tabs">
-                    {tabs.map(([key, label]) => (
-                        <button key={key} type="button" className={tab === key ? 'is-active' : ''} onClick={() => setTab(key)}>
-                            {label}
-                        </button>
-                    ))}
-                </div>
+            <SalesEditorShell
+                title="Menus"
+                subtitle="Site navigation"
+                tabs={TABS}
+                onSubmit={submit}
+                processing={form.processing}
+                statusLabel={`${visibleHeader} header links`}
+                saveLabel="Save menus"
+            >
+                {(tab) => {
+                    if (tab === 'header') {
+                        return <MenuItemList items={form.data.menus.header.items} onChange={updateHeaderItems} quickLinks={quickLinks} />;
+                    }
 
-                {tab === 'header' && (
-                    <div className="glass rounded-3xl p-6">
-                        <h2 className="mb-4 text-lg font-bold">Header Navigation</h2>
-                        <p className="mb-5 text-sm text-muted">Drag to reorder. Only visible items appear in the site header and mobile menu.</p>
-                        <MenuItemList items={form.data.menus.header.items} onChange={updateHeaderItems} quickLinks={quickLinks} />
-                    </div>
-                )}
-
-                {tab === 'cta' && (
-                    <div className="glass grid gap-4 rounded-3xl p-6 sm:grid-cols-2">
-                        <h2 className="text-lg font-bold sm:col-span-2">Header Call-to-Action Button</h2>
-                        <label className="grid gap-2">
-                            <span className="text-sm font-semibold text-muted">Button Label</span>
-                            <Input value={form.data.menus.header.cta.label} onChange={(e) => updateCta('label', e.target.value)} />
-                        </label>
-                        <label className="grid gap-2">
-                            <span className="text-sm font-semibold text-muted">Button URL</span>
-                            <Input value={form.data.menus.header.cta.url} onChange={(e) => updateCta('url', e.target.value)} />
-                        </label>
-                        <Checkbox
-                            label="Show CTA button in header"
-                            checked={form.data.menus.header.cta.is_active !== false}
-                            onChange={(e) => updateCta('is_active', e.target.checked)}
-                        />
-                    </div>
-                )}
-
-                {tab === 'footer' && (
-                    <div className="grid gap-5">
-                        <div className="glass grid gap-4 rounded-3xl p-6 sm:grid-cols-2">
-                            <h2 className="text-lg font-bold sm:col-span-2">Footer Options</h2>
-                            <Checkbox
-                                label="Show logo in footer"
-                                checked={form.data.menus.footer.show_logo !== false}
-                                onChange={(e) => updateFooter('show_logo', e.target.checked)}
-                            />
-                            <Checkbox
-                                label="Show social links below logo"
-                                checked={form.data.menus.footer.show_social !== false}
-                                onChange={(e) => updateFooter('show_social', e.target.checked)}
-                            />
-                            <Checkbox
-                                label="Show contact block in footer"
-                                checked={form.data.menus.footer.show_contact !== false}
-                                onChange={(e) => updateFooter('show_contact', e.target.checked)}
-                            />
-                            <label className="grid gap-2 sm:col-span-2">
-                                <span className="text-sm font-semibold text-muted">Custom copyright (optional)</span>
-                                <Input
-                                    value={form.data.menus.footer.copyright || ''}
-                                    onChange={(e) => updateFooter('copyright', e.target.value)}
-                                    placeholder="Leave empty to use default copyright line"
-                                />
-                            </label>
-                        </div>
-
-                        {form.data.menus.footer.columns.map((column, index) => (
-                            <div key={column.id} className="glass rounded-3xl p-6">
-                                <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                                    <label className="grid flex-1 gap-1">
-                                        <span className="text-xs font-medium text-muted">Column title</span>
-                                        <Input
-                                            value={column.title}
-                                            onChange={(e) => updateFooterColumn(index, { ...column, title: e.target.value })}
-                                        />
-                                    </label>
-                                    {form.data.menus.footer.columns.length > 1 && (
-                                        <button type="button" onClick={() => removeFooterColumn(index)} className="text-sm text-rose-300">
-                                            Remove column
-                                        </button>
-                                    )}
-                                </div>
-                                <MenuItemList
-                                    items={column.items}
-                                    onChange={(items) => updateFooterColumn(index, { ...column, items })}
-                                    quickLinks={quickLinks}
+                    if (tab === 'cta') {
+                        return (
+                            <div className="cms-form-grid">
+                                <FieldShell label="Button label">
+                                    <Input value={form.data.menus.header.cta.label} onChange={(e) => updateCta('label', e.target.value)} />
+                                </FieldShell>
+                                <FieldShell label="Button URL">
+                                    <Input value={form.data.menus.header.cta.url} onChange={(e) => updateCta('url', e.target.value)} />
+                                </FieldShell>
+                                <ToggleField
+                                    label="Show CTA in header"
+                                    checked={form.data.menus.header.cta.is_active !== false}
+                                    onChange={(v) => updateCta('is_active', v)}
                                 />
                             </div>
-                        ))}
+                        );
+                    }
 
-                        <button type="button" onClick={addFooterColumn} className="btn-outline inline-flex w-fit items-center gap-2 rounded-full px-4 py-2 text-sm">
-                            <RiAddLine /> Add footer column
-                        </button>
-                    </div>
-                )}
+                    return (
+                        <div className="menu-footer-editor">
+                            <div className="cms-form-grid">
+                                <ToggleField label="Show logo in footer" checked={form.data.menus.footer.show_logo !== false} onChange={(v) => updateFooter('show_logo', v)} />
+                                <ToggleField label="Show social links" checked={form.data.menus.footer.show_social !== false} onChange={(v) => updateFooter('show_social', v)} />
+                                <ToggleField label="Show contact block" checked={form.data.menus.footer.show_contact !== false} onChange={(v) => updateFooter('show_contact', v)} />
+                                <FieldShell label="Custom copyright" hint="Leave empty for default." wide>
+                                    <Input value={form.data.menus.footer.copyright || ''} onChange={(e) => updateFooter('copyright', e.target.value)} />
+                                </FieldShell>
+                            </div>
 
-                <button disabled={form.processing} className="btn-primary w-fit rounded-full px-6 py-3 font-bold disabled:opacity-60">
-                    Save Menus
-                </button>
-            </form>
+                            {form.data.menus.footer.columns.map((column, index) => (
+                                <section key={column.id} className="resource-editor-card menu-footer-column">
+                                    <header className="resource-editor-card-head">
+                                        <FieldShell label="Column title">
+                                            <Input value={column.title} onChange={(e) => updateFooterColumn(index, { ...column, title: e.target.value })} />
+                                        </FieldShell>
+                                        {form.data.menus.footer.columns.length > 1 && (
+                                            <button type="button" onClick={() => removeFooterColumn(index)} className="cms-list-remove">Remove column</button>
+                                        )}
+                                    </header>
+                                    <div className="resource-editor-card-body">
+                                        <MenuItemList
+                                            items={column.items}
+                                            onChange={(items) => updateFooterColumn(index, { ...column, items })}
+                                            quickLinks={quickLinks}
+                                        />
+                                    </div>
+                                </section>
+                            ))}
+
+                            <button type="button" onClick={addFooterColumn} className="cms-list-add">
+                                <RiAddLine /> Add footer column
+                            </button>
+                        </div>
+                    );
+                }}
+            </SalesEditorShell>
         </AdminLayout>
     );
 }

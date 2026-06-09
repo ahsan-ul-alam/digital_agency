@@ -4,12 +4,13 @@ import { ThemeStyles } from '../Components/Public';
 import AdminSidebar from '../Components/Admin/AdminSidebar';
 import AdminBreadcrumbs from '../Components/Admin/AdminBreadcrumbs';
 import CommandPalette from '../Components/Admin/CommandPalette';
+import NotificationBell from '../Components/Admin/NotificationBell';
 import { flattenNav } from '../Admin/navigation';
 import { getSidebarCollapsed } from '../Admin/storage';
 import { RiAddLine, RiCommandLine, RiMenuLine } from 'react-icons/ri';
 
 export default function AdminLayout({ title, subtitle, children, actions }) {
-    const { flash, adminNav, theme = {} } = usePage().props;
+    const { adminNav, theme = {} } = usePage().props;
     const navigation = Array.isArray(adminNav) ? adminNav : [];
     const navItems = flattenNav(navigation);
     const [mobileOpen, setMobileOpen] = useState(false);
@@ -54,19 +55,13 @@ export default function AdminLayout({ title, subtitle, children, actions }) {
                             </div>
                         </div>
                         <div className="admin-topbar-actions">
+                            <NotificationBell />
                             <button type="button" className="admin-topbar-btn" onClick={() => setCommandOpen(true)}>
                                 <RiCommandLine /> <span>Search</span> <kbd>⌘K</kbd>
                             </button>
                             {actions}
                         </div>
                     </header>
-
-                    {flash?.success && (
-                        <div className="admin-toast admin-toast-success">{flash.success}</div>
-                    )}
-                    {flash?.error && (
-                        <div className="admin-toast admin-toast-error">{flash.error}</div>
-                    )}
 
                     <div className="admin-content">{children}</div>
                 </div>

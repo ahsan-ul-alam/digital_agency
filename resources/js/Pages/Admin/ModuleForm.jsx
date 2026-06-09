@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import AdminLayout from '../../Layouts/AdminLayout';
-import FormShell from '../../Components/Cms/FormShell';
+import ResourceEditorShell from '../../Components/Admin/ResourceEditorShell';
+import { groupSchemaSections, previewUrlForModule } from '../../Admin/resourceTabs';
 import HomepagePayloadEditor from '../../Components/Cms/HomepagePayloadEditor';
 import RichTextEditor from '../../Components/Cms/RichTextEditor';
 import {
@@ -12,7 +13,7 @@ import {
     SocialField,
     ToggleField,
 } from '../../Components/Cms/fields';
-import { Input, Select, Textarea } from '../../Components/Form';
+import { Input, Select } from '../../Components/Form';
 import { Link, useForm } from '../../app';
 import { moduleSchemas } from '../../Admin/moduleSchemas';
 import { RiLayoutMasonryLine } from 'react-icons/ri';
@@ -115,7 +116,8 @@ function CmsField({ field, form, module, meta, item, onFieldChange, readOnly = f
     }
 
     if (field.type === 'seo') {
-        return <SeoField value={value || {}} onChange={(next) => onFieldChange(field.key, next)} error={error} />;
+        const previewUrl = item?.slug ? `https://arsoftbd.com/${module === 'pages' ? '' : `${module}/`}${item.slug}` : '';
+        return <SeoField value={value || {}} onChange={(next) => onFieldChange(field.key, next)} error={error} previewUrl={previewUrl} />;
     }
 
     if (field.type === 'social') {
@@ -196,7 +198,12 @@ function CmsField({ field, form, module, meta, item, onFieldChange, readOnly = f
     if (field.type === 'textarea') {
         return (
             <FieldShell label={field.label} hint={field.hint} error={error} wide={field.wide}>
-                <Textarea className="min-h-32" value={value ?? ''} onChange={(e) => onFieldChange(field.key, e.target.value)} disabled={disabled} />
+                <RichTextEditor
+                    compact
+                    value={value ?? ''}
+                    onChange={readOnly ? undefined : (next) => onFieldChange(field.key, next)}
+                    minHeight={field.compact ? '6rem' : '10rem'}
+                />
             </FieldShell>
         );
     }
@@ -257,11 +264,9 @@ export default function ModuleForm({ module, config, item, meta = {} }) {
         return Object.keys(form.data).some((key) => form.data[key] instanceof File);
     }
 
-    function submit(e) {
-        e.preventDefault();
-
+    function persist(extra = {}) {
         form.transform((current) => {
-            const next = { ...current };
+            const next = { ...current, ...extra };
             if (slugSource && !next.slug?.trim()) {
                 next.slug = slugify(next[slugSource]);
             }
@@ -271,6 +276,26 @@ export default function ModuleForm({ module, config, item, meta = {} }) {
         const options = hasUpload() ? { forceFormData: true } : {};
         item ? form.put(`/admin/${module}/${item.id}`, options) : form.post(`/admin/${module}`, options);
     }
+
+    function submit(e) {
+        e.preventDefault();
+        persist();
+    }
+
+    function saveDraft() {
+        persist({ is_active: false, is_published: false, status: 'draft' });
+    }
+
+    function publish() {
+        persist({ is_active: true, is_published: true, status: 'published' });
+    }
+
+    const hasPublishFields = Object.keys(form.data).some((key) => ['is_active', 'is_published', 'status'].includes(key));
+    const tabs = groupSchemaSections(schema.sections);
+    const previewUrl = previewUrlForModule(module, item);
+    const statusLabel = form.data.is_active === false || form.data.status === 'draft'
+        ? 'Draft'
+        : (form.data.is_featured ? 'Featured' : 'Published');
 
     if (!schema) {
         return (
@@ -286,19 +311,25 @@ export default function ModuleForm({ module, config, item, meta = {} }) {
         </Link>
     ) : null;
 
+    const recordTitle = item?.name || item?.title || item?.project_name || item?.question || config.title;
+
     return (
         <AdminLayout
             title={`${item ? (module === 'contacts' ? 'View' : 'Edit') : 'Create'} ${config.title.replace(/s$/, '')}`}
             subtitle={config.description}
         >
-            <FormShell
+            <ResourceEditorShell
                 title={config.title}
-                subtitle={config.description}
-                sections={schema.sections}
+                subtitle={recordTitle}
+                tabs={tabs}
+                previewUrl={previewUrl}
                 onSubmit={submit}
+                onSaveDraft={hasPublishFields && !readOnly ? saveDraft : null}
+                onPublish={hasPublishFields && !readOnly ? publish : null}
                 processing={form.processing}
                 cancelHref={`/admin/${module}`}
                 sidebarExtra={sidebarExtra}
+                statusLabel={item ? statusLabel : 'New'}
             >
                 {(section) => (
                     <div className="cms-form-grid">
@@ -316,7 +347,7 @@ export default function ModuleForm({ module, config, item, meta = {} }) {
                         ))}
                     </div>
                 )}
-            </FormShell>
+            </ResourceEditorShell>
         </AdminLayout>
     );
 }

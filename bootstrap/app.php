@@ -3,7 +3,11 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use App\Http\Middleware\EnsureAdminPermission;
+use App\Http\Middleware\EnsureClientAccount;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\TrackPageView;
+use Illuminate\Console\Scheduling\Schedule;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -14,7 +18,20 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
             HandleInertiaRequests::class,
+            TrackPageView::class,
         ]);
+
+        $middleware->alias([
+            'admin.permission' => EnsureAdminPermission::class,
+            'client.account' => EnsureClientAccount::class,
+        ]);
+
+        $middleware->validateCsrfTokens(except: [
+            'payments/eps/ipn',
+        ]);
+    })
+    ->withSchedule(function (Schedule $schedule): void {
+        $schedule->command('blog:publish-scheduled')->everyMinute();
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

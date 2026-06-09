@@ -17,6 +17,8 @@ use App\Models\SiteSetting;
 use App\Models\Statistic;
 use App\Models\TeamMember;
 use App\Models\Testimonial;
+use App\Models\JobOpening;
+use App\Services\BlogPublishService;
 use App\Services\MediaStorageService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -101,8 +103,15 @@ class ContentController extends Controller
             'model' => BlogPost::class,
             'title' => 'Blog Posts',
             'description' => 'Publish and manage blog articles.',
-            'list_columns' => ['title', 'slug', 'status', 'published_at'],
+            'list_columns' => ['title', 'slug', 'status', 'published_at', 'scheduled_at'],
             'columns' => ['title', 'slug', 'blog_category_id', 'thumbnail_path', 'thumbnail_media', 'excerpt', 'content', 'tags', 'seo', 'status', 'published_at', 'scheduled_at'],
+        ],
+        'careers' => [
+            'model' => JobOpening::class,
+            'title' => 'Careers',
+            'description' => 'Open roles shown on the public careers page.',
+            'list_columns' => ['title', 'department', 'location', 'employment_type', 'is_active'],
+            'columns' => ['title', 'slug', 'department', 'location', 'employment_type', 'excerpt', 'description', 'requirements', 'seo', 'is_active', 'sort_order'],
         ],
         'pages' => [
             'model' => Page::class,
@@ -125,10 +134,34 @@ class ContentController extends Controller
     {
         $config = $this->config($module);
 
+        if ($module === 'contacts') {
+            return Inertia::render('Admin/ContactsIndex', [
+                'items' => ContactSubmission::orderByDesc('id')->paginate(20),
+                'stats' => [
+                    'total' => ContactSubmission::count(),
+                    'unread' => ContactSubmission::whereNull('read_at')->count(),
+                ],
+            ]);
+        }
+
         return Inertia::render('Admin/ModuleIndex', [
             'module' => $module,
             'config' => $this->presentConfig($config),
             'items' => $config['model']::orderByDesc('id')->paginate(20),
+        ]);
+    }
+
+    public function showInquiry(int $id): Response
+    {
+        $inquiry = ContactSubmission::findOrFail($id);
+
+        if (! $inquiry->read_at) {
+            $inquiry->update(['read_at' => now()]);
+            $inquiry->refresh();
+        }
+
+        return Inertia::render('Admin/ContactInquiry', [
+            'inquiry' => $inquiry,
         ]);
     }
 
@@ -149,17 +182,21 @@ class ContentController extends Controller
         ]);
     }
 
-    public function store(Request $request, string $module, MediaStorageService $media): RedirectResponse
+    public function store(Request $request, string $module, MediaStorageService $media, BlogPublishService $blogPublisher): RedirectResponse
     {
         $config = $this->config($module);
         abort_if(($config['creatable'] ?? true) === false, 404);
-        $config['model']::create($this->payload($request, $config, $media, $module));
+        $config['model']::create($this->payload($request, $config, $media, $module, null, $blogPublisher));
 
         return redirect()->route('admin.modules.index', $module)->with('success', $config['title'].' saved.');
     }
 
-    public function edit(string $module, int $id): Response
+    public function edit(string $module, int $id): Response|RedirectResponse
     {
+        if ($module === 'contacts') {
+            return redirect()->route('admin.contacts.show', $id);
+        }
+
         $config = $this->config($module);
 
         return Inertia::render('Admin/ModuleForm', [
@@ -170,11 +207,13 @@ class ContentController extends Controller
         ]);
     }
 
-    public function update(Request $request, string $module, int $id, MediaStorageService $media): RedirectResponse
+    public function update(Request $request, string $module, int $id, MediaStorageService $media, BlogPublishService $blogPublisher): RedirectResponse
     {
+        abort_if($module === 'contacts', 403, 'Inquiries cannot be edited.');
+
         $config = $this->config($module);
         $item = $config['model']::findOrFail($id);
-        $item->update($this->payload($request, $config, $media, $module, $id));
+        $item->update($this->payload($request, $config, $media, $module, $id, $blogPublisher));
 
         return redirect()->route('admin.modules.index', $module)->with('success', $config['title'].' updated.');
     }
@@ -184,7 +223,24 @@ class ContentController extends Controller
         $config = $this->config($module);
         $config['model']::findOrFail($id)->delete();
 
+        if ($module === 'contacts') {
+            return redirect()->route('admin.modules.index', 'contacts')->with('success', 'Inquiry deleted.');
+        }
+
         return back()->with('success', $config['title'].' item deleted.');
+    }
+
+    public function bulkDestroy(Request $request, string $module): RedirectResponse
+    {
+        $config = $this->config($module);
+        $ids = $request->validate([
+            'ids' => ['required', 'array', 'min:1'],
+            'ids.*' => ['integer'],
+        ])['ids'];
+
+        $deleted = $config['model']::whereIn('id', $ids)->delete();
+
+        return back()->with('success', $deleted.' '.str($config['title'])->lower().' item(s) deleted.');
     }
 
     private function config(string $module): array
@@ -215,7 +271,7 @@ class ContentController extends Controller
         };
     }
 
-    private function payload(Request $request, array $config, MediaStorageService $media, string $module, ?int $exceptId = null): array
+    private function payload(Request $request, array $config, MediaStorageService $media, string $module, ?int $exceptId = null, ?BlogPublishService $blogPublisher = null): array
     {
         $data = $request->only($config['columns']);
 
@@ -251,6 +307,10 @@ class ContentController extends Controller
             $source = $data['name'] ?? $data['title'] ?? $data['project_name'] ?? null;
             $data['slug'] = filled($source) ? Str::slug($source) : Str::random(8);
             $data['slug'] = $this->uniqueSlug($data['slug'], $config['model'], $exceptId);
+        }
+
+        if ($module === 'blog' && $blogPublisher) {
+            $data = $blogPublisher->normalizePayload($data);
         }
 
         return $data;

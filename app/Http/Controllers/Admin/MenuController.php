@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Page;
 use App\Models\SiteSetting;
 use App\Support\MenuSettings;
+use App\Support\SiteCache;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -28,6 +29,9 @@ class MenuController extends Controller
                 ['label' => 'Portfolio', 'url' => '/portfolio'],
                 ['label' => 'Packages', 'url' => '/packages'],
                 ['label' => 'Blog', 'url' => '/blog'],
+                ['label' => 'Get a Quote', 'url' => '/quote'],
+                ['label' => 'Book a Call', 'url' => '/book'],
+                ['label' => 'Careers', 'url' => '/careers'],
                 ['label' => 'Contact', 'url' => '/contact'],
             ],
         ]);
@@ -65,6 +69,8 @@ class MenuController extends Controller
         ]);
 
         SiteSetting::updateOrCreate(['key' => 'menus'], ['value' => $data['menus']]);
+
+        SiteCache::bust();
 
         return back()->with('success', 'Menus updated.');
     }

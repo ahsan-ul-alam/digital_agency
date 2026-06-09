@@ -1,6 +1,10 @@
 import AdminLayout from '../../Layouts/AdminLayout';
-import { Input, Select, Textarea, Checkbox } from '../../Components/Form';
-import { Link, useForm } from '../../app';
+import ResourceEditorShell from '../../Components/Admin/ResourceEditorShell';
+import RichTextEditor from '../../Components/Cms/RichTextEditor';
+import { FieldShell, ToggleField } from '../../Components/Cms/fields';
+import { Input, Select, Textarea } from '../../Components/Form';
+import { useForm } from '../../app';
+import { RiAddLine, RiDeleteBinLine } from 'react-icons/ri';
 
 const fieldTypes = [
     ['text', 'Text'],
@@ -9,6 +13,27 @@ const fieldTypes = [
     ['number', 'Number'],
     ['textarea', 'Textarea'],
     ['select', 'Select'],
+];
+
+const tabs = [
+    {
+        id: 'content',
+        title: 'Setup',
+        hint: 'Name, shortcode and messages',
+        sections: [{ id: 'setup', title: 'Form setup', description: 'Basic details shown in the admin and on the public form.' }],
+    },
+    {
+        id: 'settings',
+        title: 'Fields',
+        hint: 'Inputs and validation',
+        sections: [{ id: 'fields', title: 'Form fields', description: 'Drag-free field builder — add rows and embed via shortcode in AR Builder.' }],
+    },
+    {
+        id: 'seo',
+        title: 'Behavior',
+        hint: 'Redirect and visibility',
+        sections: [{ id: 'behavior', title: 'After submit', description: 'What happens when a visitor submits the form.' }],
+    },
 ];
 
 export default function FormBuilder({ form: existing }) {
@@ -47,79 +72,104 @@ export default function FormBuilder({ form: existing }) {
         existing ? form.put(`/admin/forms/${existing.id}`) : form.post('/admin/forms');
     }
 
+    const sidebarExtra = existing?.shortcode ? (
+        <div className="resource-editor-shortcode">
+            <p>Shortcode</p>
+            <code>{existing.shortcode}</code>
+            <small>Use in AR Builder → Form element.</small>
+        </div>
+    ) : null;
+
     return (
         <AdminLayout title={existing ? 'Edit Form' : 'Create Form'} subtitle="Build a form and use its shortcode inside AR Builder.">
-            <form onSubmit={submit} className="grid max-w-3xl gap-6">
-                <div className="glass grid gap-5 rounded-3xl p-6 sm:grid-cols-2">
-                    <label className="grid gap-2 sm:col-span-2">
-                        <span className="text-sm font-semibold text-muted">Form Name</span>
-                        <Input value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} />
-                    </label>
-                    <label className="grid gap-2">
-                        <span className="text-sm font-semibold text-muted">Shortcode</span>
-                        <Input value={form.data.shortcode} onChange={(e) => form.setData('shortcode', e.target.value)} placeholder="Auto from name" />
-                    </label>
-                    <label className="grid gap-2">
-                        <span className="text-sm font-semibold text-muted">Submit Button</span>
-                        <Input value={form.data.submit_label} onChange={(e) => form.setData('submit_label', e.target.value)} />
-                    </label>
-                    <label className="grid gap-2 sm:col-span-2">
-                        <span className="text-sm font-semibold text-muted">Success Message</span>
-                        <Textarea value={form.data.success_message} onChange={(e) => form.setData('success_message', e.target.value)} />
-                    </label>
-                    <label className="grid gap-2 sm:col-span-2">
-                        <span className="text-sm font-semibold text-muted">Redirect URL (optional)</span>
-                        <Input value={form.data.redirect_url} onChange={(e) => form.setData('redirect_url', e.target.value)} placeholder="/thank-you" />
-                    </label>
-                    <Checkbox label="Active" checked={form.data.is_active} onChange={(e) => form.setData('is_active', e.target.checked)} />
-                </div>
-
-                <div className="glass grid gap-4 rounded-3xl p-6">
-                    <h2 className="text-lg font-bold">Fields</h2>
-                    {form.data.fields.map((field, index) => (
-                        <div key={index} className="grid gap-3 rounded-2xl border border-white/10 p-4 sm:grid-cols-2">
-                            <label className="grid gap-2">
-                                <span className="text-xs font-semibold text-muted">Field Key</span>
-                                <Input value={field.key} onChange={(e) => updateField(index, 'key', e.target.value)} />
-                            </label>
-                            <label className="grid gap-2">
-                                <span className="text-xs font-semibold text-muted">Label</span>
-                                <Input value={field.label} onChange={(e) => updateField(index, 'label', e.target.value)} />
-                            </label>
-                            <label className="grid gap-2">
-                                <span className="text-xs font-semibold text-muted">Type</span>
-                                <Select value={field.type} onChange={(e) => updateField(index, 'type', e.target.value)}>
-                                    {fieldTypes.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-                                </Select>
-                            </label>
-                            <label className="flex items-end">
-                                <Checkbox label="Required" checked={field.required} onChange={(e) => updateField(index, 'required', e.target.checked)} />
-                            </label>
-                            {field.type === 'select' && (
-                                <label className="grid gap-2 sm:col-span-2">
-                                    <span className="text-xs font-semibold text-muted">Options (one per line)</span>
-                                    <Textarea value={Array.isArray(field.options) ? field.options.join('\n') : (field.options || '')} onChange={(e) => updateField(index, 'options', e.target.value)} />
-                                </label>
-                            )}
-                            <div className="sm:col-span-2">
-                                <button type="button" onClick={() => removeField(index)} className="text-sm text-rose-300">Remove field</button>
+            <ResourceEditorShell
+                title="Form Builder"
+                subtitle={form.data.name || 'New form'}
+                tabs={tabs}
+                onSubmit={submit}
+                processing={form.processing}
+                cancelHref="/admin/forms"
+                statusLabel={form.data.is_active ? 'Active' : 'Draft'}
+                sidebarExtra={sidebarExtra}
+            >
+                {(section) => {
+                    if (section.id === 'setup') {
+                        return (
+                            <div className="cms-form-grid">
+                                <FieldShell label="Form name" error={form.errors.name} wide>
+                                    <Input value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} />
+                                </FieldShell>
+                                <FieldShell label="Shortcode" hint="Auto-generated from name when empty.">
+                                    <Input value={form.data.shortcode} onChange={(e) => form.setData('shortcode', e.target.value)} placeholder="Auto from name" />
+                                </FieldShell>
+                                <FieldShell label="Submit button label">
+                                    <Input value={form.data.submit_label} onChange={(e) => form.setData('submit_label', e.target.value)} />
+                                </FieldShell>
                             </div>
+                        );
+                    }
+
+                    if (section.id === 'fields') {
+                        return (
+                            <div className="cms-repeater">
+                                {form.data.fields.map((field, index) => (
+                                    <div key={index} className="cms-repeater-card">
+                                        <div className="cms-repeater-card-head">
+                                            <strong>Field {index + 1}</strong>
+                                            <button type="button" onClick={() => removeField(index)} className="cms-list-remove">
+                                                <RiDeleteBinLine /> Remove
+                                            </button>
+                                        </div>
+                                        <div className="cms-repeater-grid">
+                                            <FieldShell label="Field key">
+                                                <Input value={field.key} onChange={(e) => updateField(index, 'key', e.target.value)} />
+                                            </FieldShell>
+                                            <FieldShell label="Label">
+                                                <Input value={field.label} onChange={(e) => updateField(index, 'label', e.target.value)} />
+                                            </FieldShell>
+                                            <FieldShell label="Type">
+                                                <Select value={field.type} onChange={(e) => updateField(index, 'type', e.target.value)}>
+                                                    {fieldTypes.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                                                </Select>
+                                            </FieldShell>
+                                            <ToggleField
+                                                label="Required"
+                                                checked={Boolean(field.required)}
+                                                onChange={(checked) => updateField(index, 'required', checked)}
+                                            />
+                                            {field.type === 'select' && (
+                                                <FieldShell label="Options (one per line)" wide>
+                                                    <Textarea value={Array.isArray(field.options) ? field.options.join('\n') : (field.options || '')} onChange={(e) => updateField(index, 'options', e.target.value)} />
+                                                </FieldShell>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                                <button type="button" onClick={addField} className="cms-list-add">
+                                    <RiAddLine /> Add field
+                                </button>
+                            </div>
+                        );
+                    }
+
+                    return (
+                        <div className="cms-form-grid">
+                            <FieldShell label="Success message" wide>
+                                <RichTextEditor compact value={form.data.success_message} onChange={(next) => form.setData('success_message', next)} minHeight="6rem" />
+                            </FieldShell>
+                            <FieldShell label="Redirect URL (optional)" hint="Leave blank to show success message inline." wide>
+                                <Input value={form.data.redirect_url} onChange={(e) => form.setData('redirect_url', e.target.value)} placeholder="/thank-you" />
+                            </FieldShell>
+                            <ToggleField
+                                label="Active on site"
+                                hint="Inactive forms cannot be submitted."
+                                checked={form.data.is_active}
+                                onChange={(v) => form.setData('is_active', v)}
+                            />
                         </div>
-                    ))}
-                    <button type="button" onClick={addField} className="btn-outline w-fit rounded-full px-4 py-2 text-sm">Add field</button>
-                </div>
-
-                {existing?.shortcode && (
-                    <div className="rounded-2xl surface-dashed p-4 text-sm text-primary">
-                        Use shortcode <strong>{existing.shortcode}</strong> in AR Builder → Form element.
-                    </div>
-                )}
-
-                <div className="flex gap-3">
-                    <button disabled={form.processing} className="btn-primary rounded-full px-6 py-3 font-bold">Save Form</button>
-                    <Link href="/admin/forms" className="btn-outline rounded-full px-6 py-3">Cancel</Link>
-                </div>
-            </form>
+                    );
+                }}
+            </ResourceEditorShell>
         </AdminLayout>
     );
 }

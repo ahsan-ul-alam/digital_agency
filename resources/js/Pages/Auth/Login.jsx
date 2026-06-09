@@ -12,8 +12,8 @@ export default function Login() {
     }
 
     return (
-        <PublicLayout title="Admin Login">
-            <Section eyebrow="Admin" title="Sign in to manage AR Soft BD">
+        <PublicLayout title="Sign In">
+            <Section eyebrow="Account" title="Sign in to AR Soft BD">
                 <Card className="mx-auto max-w-xl">
                     <form onSubmit={submit} className="grid gap-4">
                         <label className="grid gap-2">

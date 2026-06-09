@@ -1,6 +1,6 @@
 # AR Soft BD
 
-A full-stack agency website and content management system built for **AR Soft BD**. Manage the public marketing site, blog, portfolio, services, pricing, and dynamic pages from a modern admin dashboard — without touching code.
+A full-stack agency platform built for **AR Soft BD** — marketing site, CRM, sales (quotes, proposals, invoices), client portal, meeting booking, careers, analytics, and content management from a modern admin dashboard.
 
 ---
 
@@ -78,6 +78,14 @@ php artisan db:seed
 ```
 
 This creates the admin user, default site settings, homepage sections, sample services, portfolio items, blog posts, and more.
+
+**Payment gateways:** seeding also loads public **bKash** and **EPS sandbox** credentials (both enabled). Re-apply anytime with:
+
+```bash
+php artisan db:seed --class=PaymentSettingsSeeder
+```
+
+Replace with live merchant credentials at `/admin/payments/settings` before production.
 
 ### 4. Build frontend assets
 
@@ -170,21 +178,75 @@ Without Cloudinary, files are stored locally in `storage/app/public`.
 - **Services** — listing and detail pages with rich descriptions
 - **Portfolio** — case study listings and project detail pages
 - **Packages** — pricing tiers with feature lists
-- **Blog** — categorized posts with SEO metadata
-- **Contact** — inquiry form with admin lead management
-- **Dynamic pages** — custom CMS pages built with AR Builder
+- **Blog** — categorized posts with SEO metadata and scheduled publishing
+- **Careers** — job listings and applications (`/careers`)
+- **Quote calculator** — public project estimator (`/quote`)
+- **Meeting booking** — self-serve discovery call scheduling (`/book`)
+- **Contact** — inquiry form (creates CRM leads)
+- **Dynamic pages** — custom CMS pages built with AR Builder (blank, landing, about, contact, services templates)
 - **SEO** — per-page meta tags, sitemap (`/sitemap.xml`), robots (`/robots.txt`)
 - **Theme** — brand colors and gradients controlled from admin
 
+### CRM & Sales
+
+- **CRM leads** — unified inbox from contact forms, quote calculator, meeting bookings, careers, and custom forms
+- **Lead pipeline** — status, notes, follow-ups, timeline, bulk actions
+- **Quote calculator** — configurable project types and pricing tiers
+- **Proposals** — line items, PDF export, email to clients
+- **Invoices** — billing, PDF export, partial payment recording, auto-paid when fully settled
+- **Payment instructions** — bank/mobile banking details shown on client portal invoices
+- **Online payments** — bKash Tokenized Checkout and EPS gateway on portal invoices
+
+### Client Portal
+
+Clients log in at `/login` (same form as admins; routed to `/portal` automatically).
+
+- **Dashboard** — personalized welcome, KPI cards, recent proposals/invoices, upcoming meetings
+- **Proposals** — filterable list, hero summary on detail, accept/decline workflow
+- **Invoices** — balance-due hero, Pay with bKash / EPS (form POST), bank transfer instructions
+- **Meetings** — upcoming/past filters and book-a-meeting CTA
+
+Admins can **Invite to Portal** from a lead record to create a client account.
+
 ### Admin Dashboard
 
-A workflow-oriented CMS inspired by Notion, Stripe, and Linear:
+A workflow-oriented CMS inspired by Notion, Stripe, Shopify Admin, and Linear — not a generic Laravel CRUD panel.
 
-- **Dashboard** — health checks, quick actions, recent activity
-- **Command palette** — press `Ctrl+K` (or `Cmd+K`) to jump anywhere
-- **Grouped navigation** — Website, Content, Services, Portfolio, Media, Marketing, SEO, System
-- **Data tables** — sortable module indexes with search-friendly layouts
-- **Schema-driven forms** — sectioned, card-based editing (no raw JSON for editors)
+**Dashboard homepage** (`/admin`):
+
+- Welcome banner with pending task chips
+- KPI cards with sparklines and growth % (Visitors, Leads, Revenue, Bookings)
+- Quick actions, website health pills, traffic/lead trend charts
+- Recent activity, lead inbox, popular content, setup progress
+
+**Navigation & workspace:**
+
+- Collapsible sidebar groups with search, favorites, and recent pages
+- Command palette — `Ctrl+K` / `Cmd+K` to jump anywhere
+- Grouped zones — Website, Content, Business, Media, Marketing, Sales, Settings, Access Control
+
+**Resource editors** (tab-based, not long single-page forms):
+
+- **Content / Media / SEO / Settings** tabs on all CMS modules (services, blog, portfolio, careers, etc.)
+- Preview, Save Draft, Save, and Publish actions where applicable
+- SEO tab includes live score ring and Google preview
+- Cloudinary media picker on image fields (upload, library, replace)
+
+**Sales & CRM:**
+
+- Tabbed proposal and invoice editors (Client · Line Items · Settings)
+- Lead workspace with Overview, Timeline, Notes, and Follow-ups tabs
+- Pipeline filters, KPI stats, and premium empty states on list pages
+
+**Settings:**
+
+- Tabbed editors for Site Settings, Theme, Cloudinary, Payments (Bank · bKash · EPS), Menus, Bookings, Forms, Roles, and Users
+
+**Data tables:**
+
+- Search, column filters, saved views (per module), export, bulk actions, double-click quick edit
+
+**Audit log** — track admin actions on leads, portal invites, and invoice payments
 
 ### Content Modules
 
@@ -202,14 +264,28 @@ A workflow-oriented CMS inspired by Notion, Stripe, and Linear:
 | Team | `/admin/team` | Team member profiles |
 | Logos | `/admin/logos` | Trusted-by client logos |
 | Statistics | `/admin/statistics` | Hero counter stats |
-| Inquiries | `/admin/contacts` | Form submissions |
+| CRM Leads | `/admin/leads` | Pipeline, notes, follow-ups, portal invites |
+| Quote Calculator | `/admin/quotes` | Public quote pricing configuration |
+| Proposals | `/admin/proposals` | Client proposals, PDF, email |
+| Invoices | `/admin/invoices` | Billing and payment tracking |
+| Meeting Bookings | `/admin/bookings` | Scheduled discovery calls |
+| Careers | `/admin/careers` | Job openings |
+| Form Builder | `/admin/forms` | Custom forms with shortcodes |
 | Media Library | `/admin/media` | Uploaded images and videos |
+| Audit Log | `/admin/audit-logs` | Admin activity history |
 
 ### AR Builder (Page Builder)
 
 Visual page builder for dynamic pages, policy pages, landing pages, and careers content.
 
 **Access:** `/admin/pages/{id}/builder`
+
+**Builder chrome:**
+
+- Sticky top bar with page name, slug, draft/published status, and element count
+- Save draft, Save, Publish, Preview, and link to page settings (SEO tab)
+- Three-panel layout — Elements library · Canvas · Inspector
+- Empty canvas state with drag-and-drop guidance
 
 **Block library includes:**
 
@@ -254,7 +330,7 @@ All major content fields use a professional rich text editor instead of plain te
 
 ### Form Builder
 
-Create custom forms at `/admin/forms` and embed them in AR Builder blocks using shortcodes. Submissions appear under **Leads & Inquiries**.
+Create custom forms at `/admin/forms` and embed them in AR Builder blocks using shortcodes. Submissions create **CRM leads** automatically.
 
 ### Site & Theme Settings
 
@@ -264,6 +340,23 @@ Create custom forms at `/admin/forms` and embed them in AR Builder blocks using 
 | Default SEO meta | `/admin/site/settings` |
 | Brand colors and theme | `/admin/theme/settings` |
 | Cloudinary credentials | `/admin/cloudinary/settings` |
+| Meeting booking availability | `/admin/bookings/settings` |
+| Payment gateways (bKash, EPS, bank) | `/admin/payments/settings` |
+
+### SEO & Structured Data
+
+Every public page ships with search-engine metadata:
+
+- **Meta tags** — title, description, keywords, robots
+- **Canonical URLs** — auto-generated per page; overridable in CMS SEO panel
+- **Open Graph** — title, description, image, type, locale, site name
+- **Twitter Cards** — summary / large image with site handle detection
+- **JSON-LD schema** — Organization, WebSite, WebPage, BreadcrumbList, BlogPosting, Service, FAQPage, LocalBusiness, ItemList, and more
+- **Sitemap** — `/sitemap.xml` with `lastmod`, priority, and changefreq
+- **Robots** — `/robots.txt` blocks `/admin` and `/login`
+- **Semantic HTML** — one `<h1>` per page on listing, detail, contact, and static pages
+
+Per-item SEO fields (title, description, keywords, canonical, OG image, noindex) are available on pages, services, portfolio, and blog posts under each item's **SEO** section in admin.
 
 ---
 
@@ -323,6 +416,12 @@ npm run build
 
 # Clear caches
 php artisan optimize:clear
+
+# Publish scheduled blog posts (also runs every minute via scheduler)
+php artisan blog:publish-scheduled
+
+# Run scheduler in development (blog publishing, etc.)
+php artisan schedule:work
 ```
 
 ---
@@ -340,7 +439,13 @@ php artisan optimize:clear
 | `/portfolio/{slug}` | Project detail |
 | `/blog` | Blog listing |
 | `/blog/{slug}` | Blog post |
+| `/careers` | Careers listing |
+| `/careers/{slug}` | Job detail + apply |
+| `/quote` | Quote calculator |
+| `/book` | Meeting booking |
 | `/contact` | Contact form |
+| `/login` | Admin and client login |
+| `/portal` | Client portal (auth required) |
 | `/{slug}` | Dynamic CMS page |
 | `/sitemap.xml` | XML sitemap |
 | `/robots.txt` | Robots file |
@@ -362,8 +467,10 @@ php artisan optimize:clear
    ```
 7. Configure a web server (Nginx/Apache) pointing to `/public`
 8. Set up a queue worker if using queued jobs: `php artisan queue:work`
-9. Connect Cloudinary for media delivery
-10. Change the default admin password
+9. Run the scheduler for blog publishing: add `* * * * * php /path/to/artisan schedule:run` to cron, or use `php artisan schedule:work` in dev
+10. Connect Cloudinary for media delivery
+11. Configure bKash/EPS credentials and bank instructions at `/admin/payments/settings` (register IPN URL with EPS: `{APP_URL}/payments/eps/ipn`)
+12. Change the default admin password
 
 ---
 

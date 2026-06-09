@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, router } from '../../app';
 import { NavIcon } from '../../Admin/icons';
-import { RiAddLine, RiCommandLine, RiSearchLine, RiStarLine } from 'react-icons/ri';
+import { getFavorites, isFavorite, toggleFavorite } from '../../Admin/storage';
+import { RiAddLine, RiCommandLine, RiSearchLine, RiStarFill, RiStarLine } from 'react-icons/ri';
 
 const quickCreates = [
     { label: 'Create Page', href: '/admin/pages/create', icon: 'pages' },
@@ -14,10 +15,20 @@ const quickCreates = [
 
 export default function CommandPalette({ open, onClose, items = [] }) {
     const [query, setQuery] = useState('');
+    const [favorites, setFavorites] = useState(() => getFavorites());
 
     useEffect(() => {
         if (!open) setQuery('');
+        if (open) setFavorites(getFavorites());
     }, [open]);
+
+    useEffect(() => {
+        function refreshPins() {
+            setFavorites(getFavorites());
+        }
+        window.addEventListener('admin-nav-pins-updated', refreshPins);
+        return () => window.removeEventListener('admin-nav-pins-updated', refreshPins);
+    }, []);
 
     useEffect(() => {
         function onKeyDown(event) {
@@ -45,6 +56,13 @@ export default function CommandPalette({ open, onClose, items = [] }) {
         return quickCreates.filter((item) => item.label.toLowerCase().includes(q));
     }, [query]);
 
+    function handleFavorite(item, event) {
+        event.preventDefault();
+        event.stopPropagation();
+        toggleFavorite(item);
+        setFavorites(getFavorites());
+    }
+
     if (!open) return null;
 
     return (
@@ -60,6 +78,29 @@ export default function CommandPalette({ open, onClose, items = [] }) {
                     />
                     <span className="admin-command-kbd"><RiCommandLine />K</span>
                 </div>
+
+                {favorites.length > 0 && !query && (
+                    <div className="admin-command-section">
+                        <p className="admin-command-label">Favorites</p>
+                        <div className="admin-command-list">
+                            {favorites.map((item) => (
+                                <Link
+                                    key={`fav-${item.key}`}
+                                    href={item.href}
+                                    className="admin-command-item"
+                                    onClick={() => onClose(false)}
+                                >
+                                    <span className="admin-command-icon"><NavIcon name={item.key} /></span>
+                                    <span className="admin-command-copy">
+                                        <strong>{item.title}</strong>
+                                        <small>{item.group}</small>
+                                    </span>
+                                    <RiStarFill className="admin-command-meta is-favorite" />
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 {createResults.length > 0 && (
                     <div className="admin-command-section">
@@ -98,7 +139,14 @@ export default function CommandPalette({ open, onClose, items = [] }) {
                                     <strong>{item.title}</strong>
                                     <small>{item.group}</small>
                                 </span>
-                                <RiStarLine className="admin-command-meta" />
+                                <button
+                                    type="button"
+                                    className="admin-command-fav"
+                                    onClick={(event) => handleFavorite(item, event)}
+                                    aria-label={isFavorite(item.key) ? 'Remove favorite' : 'Add favorite'}
+                                >
+                                    {isFavorite(item.key) ? <RiStarFill className="is-favorite" /> : <RiStarLine />}
+                                </button>
                             </Link>
                         ))}
                     </div>

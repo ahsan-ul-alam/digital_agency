@@ -70,6 +70,30 @@ class FormBuilderController extends Controller
         return back()->with('success', 'Submission marked as read.');
     }
 
+    public function bulkDestroy(Request $request): RedirectResponse
+    {
+        $ids = $request->validate([
+            'ids' => ['required', 'array', 'min:1'],
+            'ids.*' => ['integer'],
+        ])['ids'];
+
+        $deleted = Form::whereIn('id', $ids)->delete();
+
+        return back()->with('success', $deleted.' form(s) deleted.');
+    }
+
+    public function bulkDestroySubmissions(Request $request): RedirectResponse
+    {
+        $ids = $request->validate([
+            'ids' => ['required', 'array', 'min:1'],
+            'ids.*' => ['integer'],
+        ])['ids'];
+
+        $deleted = FormSubmission::whereIn('id', $ids)->delete();
+
+        return back()->with('success', $deleted.' response(s) deleted.');
+    }
+
     private function validated(Request $request, ?Form $form = null): array
     {
         $data = $request->validate([

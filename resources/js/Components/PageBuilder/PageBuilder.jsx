@@ -243,11 +243,16 @@ export default function PageBuilder({ value, onChange, forms = [] }) {
                 </div>
 
                 {sections.length === 0 ? (
-                    <DropZone
-                        index={0}
-                        active={Boolean(draggingType)}
-                        onDropType={(type) => insertBlock(type, 0)}
-                    />
+                    <div className="page-builder-empty">
+                        <RiLayoutGridLine className="page-builder-empty-icon" />
+                        <h4>Start building your page</h4>
+                        <p>Drag an element from the library or click any block to add it to the canvas.</p>
+                        <DropZone
+                            index={0}
+                            active={Boolean(draggingType)}
+                            onDropType={(type) => insertBlock(type, 0)}
+                        />
+                    </div>
                 ) : (
                     <div className="grid gap-3">
                         <DropZone

@@ -36,6 +36,12 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('password'),
         ]);
 
+        $this->call(RolePermissionSeeder::class);
+        $this->call(QuoteTypeSeeder::class);
+        $this->call(MeetingTypeSeeder::class);
+        $this->call(JobOpeningSeeder::class);
+        $this->call(PaymentSettingsSeeder::class);
+
         collect([
             'site' => ['name' => 'AR Soft BD', 'tagline' => 'Software Development & Digital Agency', 'logo' => '', 'favicon' => ''],
             'contact' => ['email' => 'hello@arsoftbd.com', 'phone' => '+880 1700-000000', 'address' => 'Dhaka, Bangladesh', 'map' => 'https://maps.google.com'],
@@ -49,11 +55,11 @@ class DatabaseSeeder extends Seeder
         collect([
             [
                 'section_key' => 'hero',
-                'title' => 'Building Digital Solutions For Modern Businesses',
-                'subtitle' => 'Software Development & Digital Agency',
-                'content' => 'We help startups and enterprises transform their ideas into powerful digital products. From web apps to mobile solutions, we deliver excellence.',
+                'title' => 'Building Software That Drives Growth',
+                'subtitle' => 'Digital Transformation Partner',
+                'content' => 'We solve business problems through custom software — ERP, CRM, ecommerce and platforms that automate operations and unlock revenue.',
                 'payload' => [
-                    'highlight' => 'Modern Businesses',
+                    'highlight' => 'Drives Growth',
                     'primary_cta' => 'Explore Services',
                     'primary_url' => '/services',
                     'secondary_cta' => 'Our Portfolio',
@@ -94,7 +100,7 @@ class DatabaseSeeder extends Seeder
                 'sort_order' => 3,
             ],
             ['section_key' => 'why', 'title' => 'Why teams choose AR Soft BD', 'subtitle' => 'Strategy, engineering and design in one focused delivery partner.', 'content' => 'We blend SaaS-level user experience with maintainable backend architecture.', 'payload' => ['features' => ['Conversion-focused interfaces', 'Reusable Laravel architecture', 'Admin-first content management', 'SEO and performance baked in']], 'sort_order' => 4],
-            ['section_key' => 'contact_cta', 'title' => 'Ready to Start Your Next Project?', 'subtitle' => 'Let us bring your vision to life.', 'content' => 'Get in touch today and let us discuss how we can help transform your business with cutting-edge digital solutions.', 'payload' => ['button' => 'Start a Conversation', 'url' => '/contact'], 'sort_order' => 99],
+            ['section_key' => 'contact_cta', 'title' => "Let's Build Your Next Software Product", 'subtitle' => 'Free consultation · Scoped proposal · Engineering partnership', 'content' => 'Tell us the business problem. We will design the software roadmap, architecture and delivery plan.', 'payload' => ['button' => 'Book Consultation', 'url' => '/contact'], 'sort_order' => 99],
         ])->each(fn ($row) => HomepageSection::updateOrCreate(['section_key' => $row['section_key']], $row));
 
         collect(['Northstar ERP', 'Dhaka Retail Co', 'CloudOps Lab', 'NexCommerce', 'GrowthStack'])->each(fn ($name, $i) => ClientLogo::updateOrCreate(['name' => $name], ['logo_path' => null, 'url' => '#', 'sort_order' => $i + 1]));
@@ -109,10 +115,9 @@ class DatabaseSeeder extends Seeder
         ])->each(fn ($row, $i) => Service::updateOrCreate(['slug' => $row['slug']], [...$row, 'sort_order' => $i + 1, 'seo' => ['title' => $row['name'].' - AR Soft BD']]));
 
         collect([
-            ['label' => 'Years Experience', 'value' => 5, 'suffix' => '+'],
-            ['label' => 'Projects Completed', 'value' => 120, 'suffix' => '+'],
-            ['label' => 'Happy Clients', 'value' => 80, 'suffix' => '+'],
-            ['label' => 'Expert Team', 'value' => 15, 'suffix' => '+'],
+            ['label' => 'Projects Delivered', 'value' => 500, 'suffix' => '+'],
+            ['label' => 'Business Processes Automated', 'value' => 50, 'suffix' => '+'],
+            ['label' => 'Clients Served', 'value' => 100, 'suffix' => '+'],
         ])->each(fn ($row, $i) => Statistic::updateOrCreate(['label' => $row['label']], [...$row, 'sort_order' => $i + 1]));
 
         collect([

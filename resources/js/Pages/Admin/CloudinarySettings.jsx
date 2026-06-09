@@ -1,7 +1,25 @@
 import { useState } from 'react';
 import AdminLayout from '../../Layouts/AdminLayout';
+import ResourceEditorShell from '../../Components/Admin/ResourceEditorShell';
+import { FieldShell } from '../../Components/Cms/fields';
 import { Input } from '../../Components/Form';
 import { useForm } from '../../app';
+import { RiCheckLine, RiCloudLine, RiImageLine } from 'react-icons/ri';
+
+const tabs = [
+    {
+        id: 'content',
+        title: 'Credentials',
+        hint: 'API keys and folder',
+        sections: [{ id: 'credentials', title: 'Cloudinary account', description: 'Connect your Cloudinary account for image and video management.' }],
+    },
+    {
+        id: 'settings',
+        title: 'Status',
+        hint: 'Connection and media types',
+        sections: [{ id: 'status', title: 'Media pipeline', description: 'Supported formats and connection health.' }],
+    },
+];
 
 export default function CloudinarySettings({ settings, connected }) {
     const [testResult, setTestResult] = useState(null);
@@ -32,67 +50,77 @@ export default function CloudinarySettings({ settings, connected }) {
         }
     }
 
+    const sidebarExtra = (
+        <div className="cloudinary-status-card">
+            <span className={`cloudinary-status-dot ${connected ? 'is-connected' : 'is-warning'}`} />
+            <div>
+                <strong>{connected ? 'Connected' : 'Not configured'}</strong>
+                <p>{connected ? 'Uploads route to Cloudinary.' : 'Using local storage fallback.'}</p>
+            </div>
+        </div>
+    );
+
     return (
         <AdminLayout title="Cloudinary" subtitle="Connect your Cloudinary account for image and video management across the site.">
-            <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr]">
-                <div className="glass rounded-3xl p-6">
-                    <p className="text-sm uppercase tracking-[0.3em] text-primary">Media Pipeline</p>
-                    <h2 className="mt-4 text-3xl font-black">Cloudinary Image & Video</h2>
-                    <p className="mt-4 leading-7 text-muted">
-                        Connect your Cloudinary account to manage images and videos from the dashboard. All uploads — hero media, service banners, team photos, portfolio images, blog thumbnails, logos and gallery assets — go to Cloudinary when configured.
-                    </p>
-                    <div className="mt-6 flex items-center gap-3">
-                        <span className={`inline-flex h-3 w-3 rounded-full ${connected ? 'bg-emerald-400' : 'bg-amber-400'}`} />
-                        <span className="text-sm text-muted">{connected ? 'Credentials configured' : 'Using local storage fallback'}</span>
-                    </div>
-                    <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-muted">
-                        <p className="font-semibold text-white">Supported media</p>
-                        <ul className="mt-2 grid gap-1 text-muted">
-                            <li>+ Images (JPG, PNG, WebP, SVG, GIF)</li>
-                            <li>+ Videos (MP4, WebM, MOV)</li>
-                            <li>+ Auto format & quality optimization on frontend</li>
-                            <li>+ Lazy loading for images</li>
-                        </ul>
-                    </div>
-                </div>
-                <form onSubmit={submit} className="glass grid gap-5 rounded-3xl p-6">
-                    {[
-                        ['cloud_name', 'Cloud Name', 'text'],
-                        ['api_key', 'API Key', 'text'],
-                        ['api_secret', 'API Secret', 'password'],
-                        ['upload_preset', 'Upload Preset (optional)', 'text'],
-                        ['folder', 'Folder Name', 'text'],
-                    ].map(([field, label, type]) => (
-                        <label key={field} className="grid gap-2">
-                            <span className="text-sm font-semibold text-muted">{label}</span>
-                            <Input
-                                type={type}
-                                value={form.data[field]}
-                                onChange={(e) => form.setData(field, e.target.value)}
-                            />
-                            {form.errors[field] && <span className="text-sm text-rose-300">{form.errors[field]}</span>}
-                        </label>
-                    ))}
-                    {testResult && (
-                        <p className={`rounded-2xl p-4 text-sm ${testResult.ok ? 'bg-emerald-400/10 text-emerald-200' : 'bg-rose-400/10 text-rose-200'}`}>
-                            {testResult.message}
-                        </p>
-                    )}
-                    <div className="flex flex-wrap gap-3">
-                        <button disabled={form.processing} className="btn-primary rounded-full px-6 py-3 font-bold disabled:opacity-60">
-                            Save Settings
-                        </button>
-                        <button
-                            type="button"
-                            disabled={testing}
-                            onClick={testConnection}
-                            className="rounded-full border border-white/10 px-6 py-3 text-slate-200 disabled:opacity-60"
-                        >
-                            {testing ? 'Testing...' : 'Test Connection'}
-                        </button>
-                    </div>
-                </form>
-            </div>
+            <ResourceEditorShell
+                title="Cloudinary"
+                subtitle={form.data.cloud_name || 'Media pipeline'}
+                tabs={tabs}
+                onSubmit={submit}
+                processing={form.processing}
+                statusLabel={connected ? 'Connected' : 'Fallback mode'}
+                sidebarExtra={sidebarExtra}
+            >
+                {(section) => {
+                    if (section.id === 'credentials') {
+                        return (
+                            <div className="cms-form-grid">
+                                {[
+                                    ['cloud_name', 'Cloud name', 'text'],
+                                    ['api_key', 'API key', 'text'],
+                                    ['api_secret', 'API secret', 'password'],
+                                    ['upload_preset', 'Upload preset (optional)', 'text'],
+                                    ['folder', 'Folder name', 'text'],
+                                ].map(([field, label, type]) => (
+                                    <FieldShell key={field} label={label} error={form.errors[field]} wide={field === 'api_secret'}>
+                                        <Input
+                                            type={type}
+                                            value={form.data[field]}
+                                            onChange={(e) => form.setData(field, e.target.value)}
+                                        />
+                                    </FieldShell>
+                                ))}
+                                {testResult && (
+                                    <p className={`admin-test-result ${testResult.ok ? 'is-ok' : 'is-error'}`}>
+                                        {testResult.ok ? <RiCheckLine /> : null} {testResult.message}
+                                    </p>
+                                )}
+                                <button type="button" className="resource-editor-btn is-secondary" disabled={testing} onClick={testConnection}>
+                                    <RiCloudLine /> {testing ? 'Testing…' : 'Test connection'}
+                                </button>
+                            </div>
+                        );
+                    }
+
+                    return (
+                        <div className="cloudinary-info-grid">
+                            <div className="cloudinary-info-card">
+                                <RiImageLine />
+                                <div>
+                                    <strong>Supported media</strong>
+                                    <ul>
+                                        <li>Images — JPG, PNG, WebP, SVG, GIF</li>
+                                        <li>Videos — MP4, WebM, MOV</li>
+                                        <li>Auto format & quality on frontend</li>
+                                        <li>Lazy loading for images</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <p className="cms-field-hint">All uploads — hero media, service banners, portfolio, blog thumbnails and logos — go to Cloudinary when configured.</p>
+                        </div>
+                    );
+                }}
+            </ResourceEditorShell>
         </AdminLayout>
     );
 }

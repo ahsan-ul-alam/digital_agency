@@ -1,0 +1,912 @@
+/* AR Soft BD — Journey UX (non-generic public site) */
+
+.j-wrap {
+    position: relative;
+    overflow: hidden;
+}
+
+.j-section {
+    position: relative;
+    padding-block: clamp(4rem, 8vw, 6.5rem);
+    padding-inline: var(--site-gutter);
+}
+
+.j-section-inner {
+    width: 100%;
+    max-width: var(--site-container-max);
+    margin-inline: auto;
+}
+
+.j-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-primary);
+}
+
+.j-title {
+    font-size: clamp(2rem, 4.5vw, 3.35rem);
+    font-weight: 800;
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+}
+
+.j-lead {
+    margin-top: 1rem;
+    max-width: 42rem;
+    font-size: clamp(1rem, 1.6vw, 1.15rem);
+    line-height: 1.75;
+    color: var(--color-text-muted);
+}
+
+.j-bg-mesh {
+    background:
+        radial-gradient(ellipse 80% 50% at 10% 0%, color-mix(in srgb, var(--color-primary) 14%, transparent), transparent 55%),
+        radial-gradient(ellipse 60% 40% at 90% 20%, color-mix(in srgb, var(--color-secondary) 10%, transparent), transparent 50%),
+        var(--color-background);
+}
+
+.j-bg-panel {
+    background: color-mix(in srgb, var(--color-text) 3%, var(--color-background));
+    border-block: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent);
+}
+
+.j-bg-dark {
+    background:
+        linear-gradient(160deg, color-mix(in srgb, var(--color-primary) 8%, var(--color-background)), var(--color-background) 45%),
+        var(--color-background);
+}
+
+.j-bg-diagonal {
+    background:
+        linear-gradient(135deg, color-mix(in srgb, var(--color-primary) 6%, transparent) 0%, transparent 40%),
+        repeating-linear-gradient(-12deg, transparent, transparent 2rem, color-mix(in srgb, var(--color-text) 2%, transparent) 2rem, color-mix(in srgb, var(--color-text) 2%, transparent) 2.04rem),
+        var(--color-background);
+}
+
+/* Hero */
+.j-hero {
+    min-height: min(92vh, 54rem);
+    display: grid;
+    align-items: center;
+    padding-block: clamp(5rem, 10vw, 8rem);
+}
+
+.j-hero-grid {
+    display: grid;
+    gap: 3rem;
+    align-items: center;
+}
+
+@media (min-width: 1024px) {
+    .j-hero-grid {
+        grid-template-columns: 1.05fr 0.95fr;
+    }
+}
+
+.j-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+    margin-top: 2rem;
+}
+
+.j-trust-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
+}
+
+.j-trust-item strong {
+    display: block;
+    font-size: 1.65rem;
+    font-weight: 800;
+    color: var(--color-primary);
+}
+
+.j-trust-item span {
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+}
+
+.j-hero-visual {
+    position: relative;
+    min-height: 22rem;
+}
+
+.j-mockup {
+    position: relative;
+    border-radius: 1.5rem;
+    border: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
+    background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+    box-shadow: 0 30px 80px color-mix(in srgb, black 28%, transparent);
+    overflow: hidden;
+}
+
+.j-mockup-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent);
+    background: color-mix(in srgb, var(--color-text) 4%, transparent);
+}
+
+.j-mockup-dot {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-text) 22%, transparent);
+}
+
+.j-mockup-body {
+    display: grid;
+    grid-template-columns: 4.5rem 1fr;
+    min-height: 16rem;
+}
+
+.j-mockup-side {
+    border-right: 1px solid color-mix(in srgb, var(--color-text) 6%, transparent);
+    padding: 0.75rem 0.5rem;
+    display: grid;
+    gap: 0.45rem;
+    align-content: start;
+}
+
+.j-mockup-side span {
+    height: 0.45rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-text) 10%, transparent);
+}
+
+.j-mockup-side span.is-active {
+    background: var(--color-primary);
+    opacity: 0.65;
+}
+
+.j-mockup-main {
+    padding: 1rem;
+    display: grid;
+    gap: 0.65rem;
+}
+
+.j-mockup-kpi {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+}
+
+.j-mockup-kpi div {
+    height: 3.5rem;
+    border-radius: 0.65rem;
+    border: 1px solid color-mix(in srgb, var(--color-primary) 18%, transparent);
+    background: color-mix(in srgb, var(--color-primary) 8%, transparent);
+}
+
+.j-mockup-chart {
+    flex: 1;
+    min-height: 7rem;
+    border-radius: 0.75rem;
+    border: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--color-primary) 12%, transparent), transparent);
+}
+
+.j-float-card {
+    position: absolute;
+    padding: 0.65rem 0.85rem;
+    border-radius: 0.85rem;
+    border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
+    background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+    backdrop-filter: blur(10px);
+    font-size: 0.72rem;
+    font-weight: 600;
+    box-shadow: 0 12px 30px color-mix(in srgb, black 18%, transparent);
+}
+
+.j-float-card.is-a { top: 8%; right: -4%; }
+.j-float-card.is-b { bottom: 18%; left: -6%; }
+.j-float-card.is-c { top: 42%; right: -8%; }
+
+/* Challenges */
+.j-challenge-grid {
+    display: grid;
+    gap: 1rem;
+}
+
+@media (min-width: 768px) {
+    .j-challenge-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1100px) {
+    .j-challenge-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.j-challenge-card {
+    display: grid;
+    gap: 0.5rem;
+    padding: 1.35rem;
+    border-radius: 1.15rem;
+    border: 1px solid color-mix(in srgb, #f43f5e 22%, transparent);
+    background: color-mix(in srgb, #f43f5e 5%, var(--color-background));
+}
+
+.j-challenge-card h3 {
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.j-challenge-card p {
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--color-text-muted);
+}
+
+.j-challenge-bridge {
+    margin-top: 2.5rem;
+    padding: 1.75rem 2rem;
+    border-radius: 1.25rem;
+    border: 1px solid color-mix(in srgb, var(--color-primary) 28%, transparent);
+    background: linear-gradient(120deg, color-mix(in srgb, var(--color-primary) 12%, transparent), transparent 70%);
+    text-align: center;
+}
+
+.j-challenge-bridge h3 {
+    font-size: clamp(1.35rem, 2.5vw, 1.85rem);
+    font-weight: 800;
+}
+
+/* Ecosystem */
+.j-eco-hub {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: 20rem;
+    margin-top: 2rem;
+}
+
+.j-eco-center {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: 8rem;
+    height: 8rem;
+    border-radius: 999px;
+    border: 2px solid color-mix(in srgb, var(--color-primary) 40%, transparent);
+    background: color-mix(in srgb, var(--color-primary) 12%, var(--color-background));
+    font-weight: 800;
+    text-align: center;
+    font-size: 0.85rem;
+    box-shadow: 0 0 0 12px color-mix(in srgb, var(--color-primary) 6%, transparent);
+}
+
+.j-eco-orbit {
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    border: 1px dashed color-mix(in srgb, var(--color-text) 14%, transparent);
+}
+
+.j-eco-node {
+    position: absolute;
+    padding: 0.55rem 0.9rem;
+    border-radius: 999px;
+    font-size: 0.74rem;
+    font-weight: 700;
+    border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
+    background: var(--color-background);
+    box-shadow: 0 8px 24px color-mix(in srgb, black 12%, transparent);
+    white-space: nowrap;
+}
+
+/* Comparison */
+.j-compare {
+    display: grid;
+    gap: 1.25rem;
+    margin-top: 2rem;
+}
+
+@media (min-width: 900px) {
+    .j-compare {
+        grid-template-columns: 1fr auto 1fr;
+        align-items: stretch;
+    }
+}
+
+.j-compare-col {
+    padding: 1.75rem;
+    border-radius: 1.35rem;
+    border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
+}
+
+.j-compare-col.is-old {
+    background: color-mix(in srgb, var(--color-text) 3%, transparent);
+    opacity: 0.85;
+}
+
+.j-compare-col.is-new {
+    border-color: color-mix(in srgb, var(--color-primary) 35%, transparent);
+    background: linear-gradient(160deg, color-mix(in srgb, var(--color-primary) 10%, transparent), transparent);
+    box-shadow: 0 20px 50px color-mix(in srgb, var(--color-primary) 12%, transparent);
+}
+
+.j-compare-vs {
+    display: grid;
+    place-items: center;
+    font-weight: 800;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+}
+
+.j-compare-col h3 {
+    font-size: 1.15rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+}
+
+.j-compare-col li {
+    display: flex;
+    gap: 0.55rem;
+    padding: 0.45rem 0;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: var(--color-text-muted);
+}
+
+/* Case study cards */
+.j-story-grid {
+    display: grid;
+    gap: 1.25rem;
+    margin-top: 2rem;
+}
+
+@media (min-width: 900px) {
+    .j-story-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.j-story-card {
+    display: grid;
+    gap: 1rem;
+    padding: 1.5rem;
+    border-radius: 1.35rem;
+    border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
+    background: color-mix(in srgb, var(--color-text) 2%, transparent);
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.j-story-card:hover {
+    transform: translateY(-4px);
+    border-color: color-mix(in srgb, var(--color-primary) 30%, transparent);
+}
+
+.j-story-step {
+    display: grid;
+    gap: 0.35rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-text) 6%, transparent);
+}
+
+.j-story-step:last-child {
+    border-bottom: 0;
+}
+
+.j-story-step small {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-primary);
+}
+
+/* Timeline */
+.j-timeline {
+    display: grid;
+    gap: 0;
+    margin-top: 2.5rem;
+    position: relative;
+}
+
+@media (min-width: 900px) {
+    .j-timeline {
+        grid-template-columns: repeat(7, 1fr);
+    }
+}
+
+.j-timeline-step {
+    position: relative;
+    padding: 1.25rem 0.75rem 0;
+    text-align: center;
+}
+
+.j-timeline-step::before {
+    content: '';
+    position: absolute;
+    top: 0.65rem;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: color-mix(in srgb, var(--color-primary) 25%, transparent);
+}
+
+.j-timeline-dot {
+    position: relative;
+    z-index: 1;
+    display: inline-grid;
+    place-items: center;
+    width: 1.35rem;
+    height: 1.35rem;
+    margin-bottom: 0.85rem;
+    border-radius: 999px;
+    background: var(--color-primary);
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--color-primary) 18%, transparent);
+}
+
+.j-timeline-step h4 {
+    font-size: 0.78rem;
+    font-weight: 800;
+}
+
+.j-timeline-step p {
+    margin-top: 0.35rem;
+    font-size: 0.68rem;
+    line-height: 1.45;
+    color: var(--color-text-muted);
+}
+
+/* Industries bento */
+.j-bento {
+    display: grid;
+    gap: 0.85rem;
+    margin-top: 2rem;
+}
+
+@media (min-width: 768px) {
+    .j-bento {
+        grid-template-columns: repeat(4, 1fr);
+        grid-auto-rows: minmax(7rem, auto);
+    }
+
+    .j-bento-item:nth-child(1) { grid-column: span 2; }
+    .j-bento-item:nth-child(4) { grid-column: span 2; }
+    .j-bento-item:nth-child(7) { grid-column: span 2; grid-row: span 2; }
+}
+
+.j-bento-item {
+    display: grid;
+    align-content: end;
+    gap: 0.35rem;
+    padding: 1.25rem;
+    border-radius: 1.15rem;
+    border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
+    background: color-mix(in srgb, var(--color-text) 3%, transparent);
+    min-height: 7rem;
+    transition: border-color 0.2s ease;
+}
+
+.j-bento-item:hover {
+    border-color: color-mix(in srgb, var(--color-primary) 35%, transparent);
+}
+
+.j-bento-item strong {
+    font-size: 1.05rem;
+}
+
+.j-bento-item span {
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+}
+
+/* Product showcase */
+.j-product-scroll {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    scroll-snap-type: x mandatory;
+}
+
+.j-product-card {
+    flex: 0 0 min(18rem, 80vw);
+    scroll-snap-align: start;
+    padding: 1.5rem;
+    border-radius: 1.35rem;
+    border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
+    background: linear-gradient(145deg, color-mix(in srgb, var(--color-primary) 8%, transparent), transparent 55%);
+}
+
+/* Story stats */
+.j-stat-story {
+    display: grid;
+    gap: 1.25rem;
+    margin-top: 2rem;
+}
+
+@media (min-width: 768px) {
+    .j-stat-story {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.j-stat-block {
+    padding: 2rem 1.5rem;
+    border-radius: 1.35rem;
+    border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
+    background: color-mix(in srgb, var(--color-text) 2%, transparent);
+}
+
+.j-stat-block strong {
+    display: block;
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
+    font-weight: 900;
+    line-height: 1;
+    color: var(--color-primary);
+}
+
+.j-stat-block span {
+    display: block;
+    margin-top: 0.65rem;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.j-stat-block p {
+    margin-top: 0.5rem;
+    font-size: 0.82rem;
+    line-height: 1.55;
+    color: var(--color-text-muted);
+}
+
+/* Reviews carousel */
+.j-reviews {
+    margin-top: 2rem;
+}
+
+.j-review-card {
+    display: grid;
+    gap: 1.25rem;
+    padding: 2rem;
+    border-radius: 1.5rem;
+    border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
+    background: color-mix(in srgb, var(--color-surface) 80%, transparent);
+}
+
+.j-review-video-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.65rem 0.85rem;
+    border-radius: 0.85rem;
+    background: color-mix(in srgb, var(--color-text) 5%, transparent);
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.j-review-play {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    background: var(--color-primary);
+    color: var(--color-button-text);
+}
+
+.j-review-nav {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    justify-content: center;
+}
+
+.j-review-nav button {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
+    font-weight: 700;
+}
+
+.j-review-nav button.is-active {
+    background: var(--color-primary);
+    color: var(--color-button-text);
+    border-color: transparent;
+}
+
+/* Team culture */
+.j-culture-grid {
+    display: grid;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+@media (min-width: 900px) {
+    .j-culture-grid {
+        grid-template-columns: 1.2fr 0.8fr;
+    }
+}
+
+.j-culture-panel {
+    padding: 1.75rem;
+    border-radius: 1.35rem;
+    border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
+    background: color-mix(in srgb, var(--color-text) 2%, transparent);
+}
+
+.j-team-row {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+@media (min-width: 600px) {
+    .j-team-row {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.j-team-card img {
+    width: 100%;
+    height: 10rem;
+    object-fit: cover;
+    border-radius: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+/* FAQ */
+.j-faq-groups {
+    display: grid;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.j-faq-group h4 {
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-primary);
+    margin-bottom: 0.75rem;
+}
+
+.j-faq-item {
+    border-bottom: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent);
+}
+
+.j-faq-item summary {
+    cursor: pointer;
+    padding: 1.1rem 0;
+    font-weight: 700;
+    list-style: none;
+}
+
+.j-faq-item summary::-webkit-details-marker {
+    display: none;
+}
+
+.j-faq-item p {
+    padding-bottom: 1.1rem;
+    font-size: 0.9rem;
+    line-height: 1.65;
+    color: var(--color-text-muted);
+}
+
+/* Conversion CTA */
+.j-cta-final {
+    text-align: center;
+    padding-block: clamp(3rem, 8vw, 5rem);
+    padding-inline: var(--site-gutter);
+    border-radius: 2rem;
+    border: 1px solid color-mix(in srgb, var(--color-primary) 30%, transparent);
+    background:
+        radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--color-primary) 18%, transparent), transparent 55%),
+        color-mix(in srgb, var(--color-text) 3%, var(--color-background));
+}
+
+.j-cta-final h2 {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 900;
+    max-width: 18ch;
+    margin-inline: auto;
+}
+
+.j-cta-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+/* Page hero (inner pages) */
+.j-page-hero {
+    padding-block: clamp(4rem, 8vw, 6rem);
+    border-bottom: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent);
+}
+
+.j-page-hero-grid {
+    display: grid;
+    gap: 2rem;
+}
+
+@media (min-width: 900px) {
+    .j-page-hero-grid {
+        grid-template-columns: 1.1fr 0.9fr;
+        align-items: end;
+    }
+}
+
+/* Services page problem list */
+.j-problem-stack {
+    display: grid;
+    gap: 0.65rem;
+    margin-top: 1.5rem;
+}
+
+.j-problem-row {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1rem;
+    align-items: start;
+    padding: 1.15rem 1.25rem;
+    border-radius: 1rem;
+    border: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent);
+}
+
+.j-problem-num {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    letter-spacing: 0.1em;
+}
+
+/* Portfolio case study */
+.j-case-hero {
+    display: grid;
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+@media (min-width: 900px) {
+    .j-case-hero {
+        grid-template-columns: 1fr 1fr;
+        align-items: center;
+    }
+}
+
+.j-case-pillar {
+    display: grid;
+    gap: 0.5rem;
+    padding: 1.25rem;
+    border-radius: 1rem;
+    border-left: 3px solid var(--color-primary);
+    background: color-mix(in srgb, var(--color-text) 3%, transparent);
+}
+
+.j-case-pillar small {
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-primary);
+}
+
+/* Contact page */
+.j-contact-grid {
+    display: grid;
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+@media (min-width: 1024px) {
+    .j-contact-grid {
+        grid-template-columns: 1.15fr 0.85fr;
+    }
+}
+
+.j-contact-promise {
+    display: grid;
+    gap: 0.75rem;
+    padding: 1.25rem;
+    border-radius: 1rem;
+    border: 1px solid color-mix(in srgb, var(--color-primary) 22%, transparent);
+    background: color-mix(in srgb, var(--color-primary) 6%, transparent);
+}
+
+.j-contact-options {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.j-contact-option {
+    display: grid;
+    gap: 0.25rem;
+    padding: 1rem 1.15rem;
+    border-radius: 0.95rem;
+    border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
+    transition: border-color 0.2s ease;
+}
+
+.j-contact-option:hover {
+    border-color: color-mix(in srgb, var(--color-primary) 35%, transparent);
+}
+
+.j-contact-option strong {
+    font-size: 0.95rem;
+}
+
+.j-contact-option span {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+}
+
+/* Package comparison */
+.j-package-compare {
+    display: grid;
+    gap: 1.25rem;
+    margin-top: 2rem;
+}
+
+@media (min-width: 900px) {
+    .j-package-compare {
+        grid-template-columns: repeat(3, 1fr);
+        align-items: stretch;
+    }
+}
+
+.j-package-card {
+    display: grid;
+    gap: 1rem;
+    padding: 1.75rem;
+    border-radius: 1.35rem;
+    border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
+    background: color-mix(in srgb, var(--color-text) 2%, transparent);
+}
+
+.j-package-card.is-featured {
+    border-color: color-mix(in srgb, var(--color-primary) 40%, transparent);
+    background: linear-gradient(160deg, color-mix(in srgb, var(--color-primary) 10%, transparent), transparent);
+    transform: scale(1.02);
+}
+
+.j-package-audience {
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+    line-height: 1.5;
+}
+
+/* Logo strip */
+.j-logos {
+    padding: 2.5rem 0;
+    border-block: 1px solid color-mix(in srgb, var(--color-text) 6%, transparent);
+}
+
+.j-logos-track {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem 3rem;
+    align-items: center;
+    opacity: 0.65;
+    filter: grayscale(1);
+    transition: opacity 0.2s ease, filter 0.2s ease;
+}
+
+.j-logos-track:hover {
+    opacity: 1;
+    filter: grayscale(0);
+}

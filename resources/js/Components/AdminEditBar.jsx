@@ -13,7 +13,7 @@ export default function AdminEditBar() {
 
     return (
         <div className="admin-edit-bar">
-            <div className="admin-edit-bar-inner">
+            <div className="admin-edit-bar-inner site-container">
                 <div className="admin-edit-bar-meta">
                     <span className="admin-edit-bar-badge">Admin</span>
                     <span className="admin-edit-bar-text">

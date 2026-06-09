@@ -17,6 +17,7 @@ trait HasAgencyCasts
             'metadata' => 'array',
             'benefits' => 'array',
             'features' => 'array',
+            'requirements' => 'array',
             'seo' => 'array',
             'tags' => 'array',
             'sections' => 'array',

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\SiteSetting;
 use App\Services\MediaStorageService;
+use App\Support\SiteCache;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -20,7 +21,7 @@ class SiteSettingsController extends Controller
             'site' => $settings['site'] ?? ['name' => '', 'tagline' => '', 'logo' => '', 'favicon' => ''],
             'contact' => $settings['contact'] ?? ['email' => '', 'phone' => '', 'address' => '', 'map' => ''],
             'social' => $settings['social'] ?? ['facebook' => '', 'linkedin' => '', 'github' => '', 'twitter' => '', 'instagram' => ''],
-            'seo' => $settings['seo'] ?? ['title' => '', 'description' => '', 'keywords' => ''],
+            'seo' => $settings['seo'] ?? ['title' => '', 'description' => '', 'keywords' => '', 'og_image' => '', 'canonical' => ''],
         ]);
     }
 
@@ -47,6 +48,8 @@ class SiteSettingsController extends Controller
             'seo.title' => ['nullable', 'string', 'max:160'],
             'seo.description' => ['nullable', 'string', 'max:300'],
             'seo.keywords' => ['nullable', 'string', 'max:220'],
+            'seo.og_image' => ['nullable', 'url', 'max:500'],
+            'seo.canonical' => ['nullable', 'url', 'max:500'],
         ]);
 
         $site = [
@@ -74,6 +77,8 @@ class SiteSettingsController extends Controller
         SiteSetting::updateOrCreate(['key' => 'contact'], ['value' => $data['contact']]);
         SiteSetting::updateOrCreate(['key' => 'social'], ['value' => $data['social']]);
         SiteSetting::updateOrCreate(['key' => 'seo'], ['value' => $data['seo']]);
+
+        SiteCache::bust();
 
         return back()->with('success', 'Site information updated.');
     }

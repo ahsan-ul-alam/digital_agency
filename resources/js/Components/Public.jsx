@@ -1,4 +1,4 @@
-import { Link, useForm, usePage } from '../app';
+import { Link, useForm } from '../app';
 import { Input, Select, Textarea } from './Form';
 import RichTextContent from './Cms/RichTextContent';
 import { motion } from 'framer-motion';
@@ -61,14 +61,16 @@ export function ThemeStyles({ theme }) {
     return <style dangerouslySetInnerHTML={{ __html: css }} />;
 }
 
-export function Section({ eyebrow, title, subtitle, children, className = '', action }) {
+export function Section({ eyebrow, title, subtitle, children, className = '', action, pageHeading = false }) {
+    const Heading = pageHeading ? 'h1' : 'h2';
+
     return (
-        <section className={`mx-auto max-w-7xl px-6 py-20 ${className}`}>
+        <section className={`site-container py-20 ${className}`}>
             {(eyebrow || title || subtitle || action) && (
                 <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
                     <div className="max-w-3xl">
                         {eyebrow && <p className="mb-3 text-sm font-semibold uppercase tracking-[0.3em] text-primary">{eyebrow}</p>}
-                        {title && <h2 className="text-3xl font-bold tracking-tight md:text-5xl">{title}</h2>}
+                        {title && <Heading className="text-3xl font-bold tracking-tight md:text-5xl">{title}</Heading>}
                         {subtitle && <p className="mt-4 text-lg leading-8 text-muted">{subtitle}</p>}
                     </div>
                     {action}
@@ -126,7 +128,6 @@ export function IconBubble({ name, className = '' }) {
 }
 
 function HeroQueryForm({ services = [], formTitle, formSubtitle }) {
-    const { flash } = usePage().props;
     const form = useForm({ name: '', email: '', phone: '', service: '', message: '' });
 
     function submit(e) {
@@ -140,9 +141,6 @@ function HeroQueryForm({ services = [], formTitle, formSubtitle }) {
                 <p className="text-lg font-bold">{formTitle || 'Get a Free Quote'}</p>
                 <p className="mt-2 text-sm text-muted">{formSubtitle || 'Tell us about your project and we will get back within 24 hours.'}</p>
             </div>
-            {flash?.success && (
-                <p className="mb-4 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 p-4 text-sm text-emerald-200">{flash.success}</p>
-            )}
             <form onSubmit={submit} className="grid gap-4">
                 <div className="grid gap-4 lg:grid-cols-2">
                     <Input
@@ -199,7 +197,7 @@ export function Hero({ section, stats = [], services = [] }) {
         : [title, ''];
 
     return (
-        <section className="relative isolate px-6 py-20 md:py-28">
+        <section className="relative isolate py-20 md:py-28">
             <div
                 className="absolute inset-0 -z-10"
                 style={{
@@ -221,7 +219,7 @@ export function Hero({ section, stats = [], services = [] }) {
             <motion.div
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="hero-grid relative mx-auto max-w-7xl"
+                className="hero-grid site-container relative"
             >
                 <div className="hero-content">
                     <p className="badge-primary mb-5 inline-flex rounded-full px-4 py-2 text-sm">
@@ -249,7 +247,13 @@ export function Hero({ section, stats = [], services = [] }) {
                     </div>
                     {stats.length > 0 && (
                         <div className="hero-stats mt-10 border-t border-app pt-8">
-                            {stats.slice(0, 4).map((stat) => (
+                            {stats
+                                .filter((stat) => {
+                                    const label = (stat.label || '').toLowerCase();
+                                    return !label.includes('team member') && label !== 'expert team';
+                                })
+                                .slice(0, 3)
+                                .map((stat) => (
                                 <div key={stat.id} className="min-w-0">
                                     <p className="text-2xl font-black text-primary md:text-3xl">
                                         {stat.value}{stat.suffix}

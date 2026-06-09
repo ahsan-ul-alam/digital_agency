@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Form;
 use App\Models\Page;
+use App\Support\PageTemplates;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -15,7 +16,13 @@ class PageBuilderController extends Controller
 {
     public function create(): Response
     {
-        return Inertia::render('Admin/PageCreate');
+        return Inertia::render('Admin/PageCreate', [
+            'templates' => collect(PageTemplates::all())->map(fn ($template) => [
+                'key' => $template['key'],
+                'name' => $template['name'],
+                'description' => $template['description'],
+            ])->values(),
+        ]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -23,7 +30,10 @@ class PageBuilderController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:160'],
             'slug' => ['nullable', 'string', 'max:160'],
+            'template' => ['nullable', 'string'],
         ]);
+
+        $template = filled($data['template'] ?? null) ? PageTemplates::find($data['template']) : null;
 
         $slug = filled($data['slug'] ?? null)
             ? Str::slug($data['slug'])
@@ -32,7 +42,7 @@ class PageBuilderController extends Controller
         $page = Page::create([
             'name' => $data['name'],
             'slug' => $slug,
-            'sections' => [],
+            'sections' => $template['sections'] ?? [],
             'is_published' => false,
         ]);
 

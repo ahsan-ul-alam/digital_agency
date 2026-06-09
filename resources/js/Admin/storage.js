@@ -1,22 +1,5 @@
-const RECENT_KEY = 'arsoftbd.admin.recent';
 const FAVORITES_KEY = 'arsoftbd.admin.favorites';
 const SIDEBAR_KEY = 'arsoftbd.admin.sidebar-collapsed';
-const MAX_RECENT = 6;
-
-export function getRecent() {
-    try {
-        return JSON.parse(localStorage.getItem(RECENT_KEY) || '[]');
-    } catch {
-        return [];
-    }
-}
-
-export function trackRecent(item) {
-    if (!item?.href) return;
-    const entry = { key: item.key, title: item.title, href: item.href, group: item.group || '' };
-    const next = [entry, ...getRecent().filter((row) => row.href !== entry.href)].slice(0, MAX_RECENT);
-    localStorage.setItem(RECENT_KEY, JSON.stringify(next));
-}
 
 export function getFavorites() {
     try {
@@ -34,6 +17,7 @@ export function toggleFavorite(item) {
         ? favorites.filter((row) => row.key !== item.key)
         : [{ key: item.key, title: item.title, href: item.href, group: item.group || '' }, ...favorites];
     localStorage.setItem(FAVORITES_KEY, JSON.stringify(next));
+    window.dispatchEvent(new Event('admin-nav-pins-updated'));
     return next;
 }
 

@@ -9,10 +9,10 @@ function categoryLabel(item) {
     return item.type || null;
 }
 
-export default function Listing({ settings, kind, title, items }) {
+export default function Listing({ settings, seo, kind, title, items }) {
     return (
-        <PublicLayout settings={settings} title={title}>
-            <Section eyebrow={kind} title={title} subtitle="Filtered, dynamic and manageable from the AR Soft BD dashboard.">
+        <PublicLayout settings={settings} seo={seo}>
+            <Section pageHeading eyebrow={kind} title={title} subtitle="Filtered, dynamic and manageable from the AR Soft BD dashboard.">
                 <div className="grid gap-5 md:grid-cols-3">
                     {items.map((item) => {
                         if (kind === 'packages') {

@@ -25,8 +25,8 @@ export const radiusMap = {
 
 const maxWidthMap = {
     full: 'max-w-none',
-    wide: 'max-w-5xl mx-auto',
-    narrow: 'max-w-3xl mx-auto',
+    wide: 'site-container',
+    narrow: 'site-container max-w-3xl',
 };
 
 const gapMap = {

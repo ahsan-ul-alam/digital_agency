@@ -2,11 +2,10 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\SiteSetting;
+use App\Models\AdminNotification;
 use App\Support\AdminEditResolver;
 use App\Support\AdminNavigation;
-use App\Support\MenuSettings;
-use App\Support\ThemePalette;
+use App\Support\SiteCache;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -28,16 +27,35 @@ class HandleInertiaRequests extends Middleware
                 'error' => fn () => $request->session()->get('error'),
             ],
             'auth' => [
-                'user' => fn () => $request->user()?->only('id', 'name', 'email'),
+                'user' => function () use ($request) {
+                    $user = $request->user();
+
+                    if (! $user) {
+                        return null;
+                    }
+
+                    $user->loadMissing('role');
+
+                    return [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'account_type' => $user->account_type ?? 'admin',
+                        'role' => $user->role?->only('id', 'name', 'slug'),
+                        'permissions' => $user->permissionSlugs(),
+                        'is_super_admin' => $user->isSuperAdmin(),
+                        'is_client' => $user->isClient(),
+                    ];
+                },
             ],
-            'adminNav' => fn () => $request->is('admin', 'admin/*') ? AdminNavigation::groups() : null,
-            'siteBranding' => fn () => SiteSetting::where('key', 'site')->first()?->value ?? [],
-            'theme' => fn () => array_merge(
-                ThemePalette::defaults(),
-                SiteSetting::where('key', 'theme')->first()?->value ?? []
-            ),
-            'menus' => fn () => MenuSettings::get(),
+            'adminNav' => fn () => $request->is('admin', 'admin/*') ? AdminNavigation::groupsFor($request->user()) : null,
+            'siteBranding' => fn () => SiteCache::branding(),
+            'theme' => fn () => SiteCache::theme(),
+            'menus' => fn () => SiteCache::menus(),
             'adminEdit' => fn () => AdminEditResolver::resolve($request),
+            'notificationUnread' => fn () => $request->user()
+                ? AdminNotification::where('user_id', $request->user()->id)->whereNull('read_at')->count()
+                : 0,
         ];
     }
 }

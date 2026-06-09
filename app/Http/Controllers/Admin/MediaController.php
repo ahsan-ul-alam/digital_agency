@@ -28,12 +28,35 @@ class MediaController extends Controller
         return response()->json($items);
     }
 
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        $search = $request->string('search')->trim();
+        $type = $request->string('type')->trim();
         $cloudinary = SiteSetting::where('key', 'cloudinary')->first()?->value ?? [];
 
+        $items = MediaItem::query()
+            ->when($search->isNotEmpty(), fn ($query) => $query->where(function ($builder) use ($search) {
+                $builder->where('name', 'like', "%{$search}%")
+                    ->orWhere('alt_text', 'like', "%{$search}%");
+            }))
+            ->when($type === 'image', fn ($query) => $query->where('mime_type', 'like', 'image/%'))
+            ->when($type === 'video', fn ($query) => $query->where('mime_type', 'like', 'video/%'))
+            ->latest()
+            ->paginate(24)
+            ->withQueryString();
+
         return Inertia::render('Admin/MediaLibrary', [
-            'items' => MediaItem::latest()->paginate(24),
+            'items' => $items,
+            'filters' => [
+                'search' => $search->toString(),
+                'type' => in_array($type->toString(), ['image', 'video'], true) ? $type->toString() : 'all',
+            ],
+            'stats' => [
+                'total' => MediaItem::count(),
+                'images' => MediaItem::where('mime_type', 'like', 'image/%')->count(),
+                'videos' => MediaItem::where('mime_type', 'like', 'video/%')->count(),
+                'storage_bytes' => (int) MediaItem::sum('size'),
+            ],
             'cloudinaryConnected' => filled($cloudinary['cloud_name'] ?? null)
                 && filled($cloudinary['api_key'] ?? null)
                 && filled($cloudinary['api_secret'] ?? null),
@@ -90,5 +113,17 @@ class MediaController extends Controller
         $mediaItem->delete();
 
         return back()->with('success', 'Media deleted.');
+    }
+
+    public function bulkDestroy(Request $request): RedirectResponse
+    {
+        $ids = $request->validate([
+            'ids' => ['required', 'array', 'min:1'],
+            'ids.*' => ['integer'],
+        ])['ids'];
+
+        $deleted = MediaItem::whereIn('id', $ids)->delete();
+
+        return back()->with('success', $deleted.' media item(s) deleted.');
     }
 }

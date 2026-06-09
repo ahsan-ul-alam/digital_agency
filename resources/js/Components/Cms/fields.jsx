@@ -104,24 +104,99 @@ export function RepeaterField({ label, hint, items = [], fields, onChange, error
     );
 }
 
-export function SeoField({ value = {}, onChange, error }) {
-    const data = { title: '', description: '', keywords: '', ...value };
+function seoScore(data) {
+    let score = 0;
+    const title = String(data.title || '').trim();
+    const description = String(data.description || '').trim();
+    const keywords = String(data.keywords || '').trim();
+
+    if (title.length >= 30 && title.length <= 60) score += 30;
+    else if (title.length > 0) score += 15;
+
+    if (description.length >= 120 && description.length <= 160) score += 35;
+    else if (description.length > 0) score += 18;
+
+    if (keywords.length > 0) score += 10;
+    if (data.canonical) score += 10;
+    if (data.og_image) score += 10;
+    if (!data.noindex) score += 5;
+
+    return Math.min(100, score);
+}
+
+function seoScoreLabel(score) {
+    if (score >= 80) return 'Excellent';
+    if (score >= 60) return 'Good';
+    if (score >= 40) return 'Needs work';
+    return 'Poor';
+}
+
+export function SeoField({ value = {}, onChange, error, showAdvanced = true, previewUrl = '' }) {
+    const data = { title: '', description: '', keywords: '', canonical: '', og_image: '', noindex: false, ...value };
 
     function set(key, val) {
         onChange({ ...data, [key]: val });
     }
 
+    const score = seoScore(data);
+    const scoreTone = score >= 80 ? 'excellent' : score >= 60 ? 'good' : score >= 40 ? 'fair' : 'poor';
+    const displayUrl = data.canonical || previewUrl || 'https://arsoftbd.com/your-page';
+    const displayTitle = data.title || 'Page title will appear here';
+    const displayDescription = data.description || 'Add a meta description to improve click-through rate in search results.';
+
     return (
         <div className="cms-seo-panel">
-            <FieldShell label="Meta Title" hint="Shown in browser tabs and search results.">
-                <Input value={data.title} onChange={(e) => set('title', e.target.value)} />
+            <div className={`cms-seo-score is-${scoreTone}`}>
+                <div className="cms-seo-score-ring" style={{ '--seo-score': score }}>
+                    <strong>{score}</strong>
+                    <span>SEO Score</span>
+                </div>
+                <div className="cms-seo-score-copy">
+                    <h4>{seoScoreLabel(score)}</h4>
+                    <p>Optimize title length (30–60 chars), description (120–160 chars), and social image for best results.</p>
+                    <ul className="cms-seo-checklist">
+                        <li className={data.title ? 'is-done' : ''}>Meta title {data.title ? `(${data.title.length} chars)` : 'missing'}</li>
+                        <li className={data.description ? 'is-done' : ''}>Meta description {data.description ? `(${data.description.length} chars)` : 'missing'}</li>
+                        <li className={data.og_image ? 'is-done' : ''}>Social share image</li>
+                        <li className={!data.noindex ? 'is-done' : ''}>{data.noindex ? 'Hidden from search' : 'Indexable'}</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div className="cms-seo-preview">
+                <p className="cms-seo-preview-label">Google preview</p>
+                <div className="cms-seo-preview-card">
+                    <span className="cms-seo-preview-url">{displayUrl.replace(/^https?:\/\//, '')}</span>
+                    <strong className="cms-seo-preview-title">{displayTitle}</strong>
+                    <p className="cms-seo-preview-desc">{displayDescription}</p>
+                </div>
+            </div>
+
+            <FieldShell label="Meta Title" hint="Shown in browser tabs and search results (max ~70 characters).">
+                <Input value={data.title} onChange={(e) => set('title', e.target.value)} placeholder="Page title | Site name" />
             </FieldShell>
-            <FieldShell label="Meta Description" hint="Short summary for Google and social previews." wide>
+            <FieldShell label="Meta Description" hint="Short summary for Google and social previews (max ~160 characters)." wide>
                 <Textarea className="min-h-24" value={data.description} onChange={(e) => set('description', e.target.value)} />
             </FieldShell>
             <FieldShell label="Keywords" hint="Comma-separated keywords for legacy SEO tools.">
                 <Input value={data.keywords} onChange={(e) => set('keywords', e.target.value)} />
             </FieldShell>
+            {showAdvanced && (
+                <>
+                    <FieldShell label="Canonical URL" hint="Leave blank to auto-generate from the page URL.">
+                        <Input value={data.canonical || ''} onChange={(e) => set('canonical', e.target.value)} placeholder="https://example.com/page" />
+                    </FieldShell>
+                    <FieldShell label="Social Share Image URL" hint="Open Graph / Twitter image. Falls back to banner or site logo.">
+                        <Input value={data.og_image || ''} onChange={(e) => set('og_image', e.target.value)} placeholder="https://..." />
+                    </FieldShell>
+                    <ToggleField
+                        label="Hide from search engines"
+                        hint="Adds noindex, nofollow for this page only."
+                        checked={Boolean(data.noindex)}
+                        onChange={(checked) => set('noindex', checked)}
+                    />
+                </>
+            )}
             {error && <span className="cms-field-error">{error}</span>}
         </div>
     );

@@ -12,6 +12,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <meta name="theme-primary" content="{{ $theme['primary'] }}">
+        <meta name="theme-color" content="{{ $theme['primary'] }}">
+        <meta name="format-detection" content="telephone=no">
+        <link rel="alternate" hreflang="{{ str_replace('_', '-', app()->getLocale()) }}" href="{{ url()->current() }}" />
         <style>:root { {{ ThemePalette::cssVariables($theme) }} }</style>
         @if(!empty($siteBranding['favicon']))
             <link rel="icon" href="{{ $siteBranding['favicon'] }}">

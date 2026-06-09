@@ -1,49 +1,77 @@
 import AdminLayout from '../../Layouts/AdminLayout';
+import DataTable from '../../Components/Admin/DataTable';
+import EmptyState from '../../Components/Admin/EmptyState';
 import { Link, router } from '../../app';
-import { RiAddLine } from 'react-icons/ri';
+import { RiAddLine, RiFileList3Line } from 'react-icons/ri';
+
+function bulkDelete(ids, onDone) {
+    if (!window.confirm(`Delete ${ids.length} selected ${ids.length === 1 ? 'form' : 'forms'}?`)) {
+        return;
+    }
+
+    router.delete('/admin/forms/bulk', {
+        data: { ids },
+        preserveScroll: true,
+        onSuccess: onDone,
+    });
+}
 
 export default function FormIndex({ forms }) {
+    const rows = forms.data.map((form) => ({
+        ...form,
+        fields_count: (form.fields || []).length,
+        status: form.is_active ? 'Active' : 'Inactive',
+    }));
+
+    const headerAction = (
+        <Link href="/admin/forms/create" className="admin-topbar-primary">
+            <RiAddLine /> New Form
+        </Link>
+    );
+
     return (
-        <AdminLayout title="Form Builder" subtitle="Create forms and embed them in pages using shortcodes.">
-            <div className="mb-6 flex justify-between gap-3">
-                <p className="text-sm text-muted">{forms.total} form{forms.total === 1 ? '' : 's'}</p>
-                <Link href="/admin/forms/create" className="btn-primary inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-bold">
-                    <RiAddLine /> New Form
-                </Link>
+        <AdminLayout title="Form Builder" subtitle="Create forms and embed them in pages using shortcodes." actions={headerAction}>
+            <div className="admin-page-meta">
+                <p>{forms.total} form{forms.total === 1 ? '' : 's'}</p>
             </div>
 
-            <div className="glass overflow-hidden rounded-3xl">
-                <table className="w-full text-left text-sm">
-                    <thead className="bg-white/5 text-muted">
-                        <tr>
-                            <th className="px-4 py-3">Name</th>
-                            <th className="px-4 py-3">Shortcode</th>
-                            <th className="px-4 py-3">Fields</th>
-                            <th className="px-4 py-3">Submissions</th>
-                            <th className="px-4 py-3">Status</th>
-                            <th className="px-4 py-3">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {forms.data.map((form) => (
-                            <tr key={form.id} className="border-t border-white/10">
-                                <td className="px-4 py-3 font-semibold">{form.name}</td>
-                                <td className="px-4 py-3 text-primary">{form.shortcode}</td>
-                                <td className="px-4 py-3 text-muted">{(form.fields || []).length}</td>
-                                <td className="px-4 py-3 text-muted">{form.submissions_count}</td>
-                                <td className="px-4 py-3">{form.is_active ? 'Active' : 'Inactive'}</td>
-                                <td className="px-4 py-3">
-                                    <div className="flex gap-3">
-                                        <Link href={`/admin/forms/${form.id}/edit`} className="text-primary">Edit</Link>
-                                        <Link href={`/admin/forms/${form.id}/submissions`} className="text-primary">Responses</Link>
-                                        <button onClick={() => confirm('Delete this form?') && router.delete(`/admin/forms/${form.id}`)} className="text-rose-300">Delete</button>
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+            <DataTable
+                tableId="forms"
+                quickEditHref={(row) => `/admin/forms/${row.id}/edit`}
+                columns={['name', 'shortcode', 'fields_count', 'submissions_count', 'status']}
+                rows={rows}
+                columnLabels={{
+                    name: 'Name',
+                    shortcode: 'Shortcode',
+                    fields_count: 'Fields',
+                    submissions_count: 'Submissions',
+                    status: 'Status',
+                }}
+                exportFileName="forms"
+                onBulkDelete={bulkDelete}
+                actions={(form) => (
+                    <div className="admin-row-actions">
+                        <Link href={`/admin/forms/${form.id}/edit`} className="admin-row-action">Edit</Link>
+                        <Link href={`/admin/forms/${form.id}/submissions`} className="admin-row-action">Responses</Link>
+                        <button
+                            type="button"
+                            className="admin-row-action is-danger"
+                            onClick={() => window.confirm('Delete this form?') && router.delete(`/admin/forms/${form.id}`)}
+                        >
+                            Delete
+                        </button>
+                    </div>
+                )}
+                emptyState={(
+                    <EmptyState
+                        icon={RiFileList3Line}
+                        title="No forms yet"
+                        body="Create a form and embed it in AR Builder pages."
+                        ctaHref="/admin/forms/create"
+                        ctaLabel="Create first form"
+                    />
+                )}
+            />
         </AdminLayout>
     );
 }

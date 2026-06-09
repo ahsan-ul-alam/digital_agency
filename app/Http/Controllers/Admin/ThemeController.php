@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\SiteSetting;
+use App\Support\SiteCache;
 use App\Support\ThemePalette;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -46,6 +47,8 @@ class ThemeController extends Controller
         ]);
 
         SiteSetting::updateOrCreate(['key' => 'theme'], ['value' => $data]);
+
+        SiteCache::bust();
 
         return back()->with('success', 'Theme colors updated. Changes are live on the website.');
     }

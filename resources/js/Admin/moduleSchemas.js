@@ -242,7 +242,7 @@ export const moduleSchemas = {
                     { key: 'title', type: 'text', label: 'Post Title', required: true, wide: true },
                     { key: 'slug', type: 'slug', source: 'title', label: 'URL Slug' },
                     { key: 'blog_category_id', type: 'category', label: 'Category' },
-                    { key: 'excerpt', type: 'textarea', label: 'Excerpt', wide: true },
+                    { key: 'excerpt', type: 'richtext', label: 'Excerpt', wide: true, compact: true },
                     { key: 'status', type: 'status', label: 'Publication Status' },
                     { key: 'published_at', type: 'datetime', label: 'Published At' },
                     { key: 'scheduled_at', type: 'datetime', label: 'Scheduled For' },
@@ -262,6 +262,50 @@ export const moduleSchemas = {
                 id: 'taxonomy',
                 title: 'Tags',
                 fields: [{ key: 'tags', type: 'list', label: 'Tags', wide: true }],
+            },
+            {
+                id: 'seo',
+                title: 'SEO',
+                fields: [{ key: 'seo', type: 'seo' }],
+            },
+        ],
+    },
+    careers: {
+        sections: [
+            {
+                id: 'role',
+                title: 'Role Details',
+                fields: [
+                    { key: 'title', type: 'text', label: 'Job Title', required: true, wide: true },
+                    { key: 'slug', type: 'slug', source: 'title', label: 'URL Slug' },
+                    { key: 'department', type: 'text', label: 'Department' },
+                    { key: 'location', type: 'text', label: 'Location' },
+                    {
+                        key: 'employment_type',
+                        type: 'select',
+                        label: 'Employment Type',
+                        options: [
+                            { value: 'full-time', label: 'Full-time' },
+                            { value: 'part-time', label: 'Part-time' },
+                            { value: 'contract', label: 'Contract' },
+                            { value: 'remote', label: 'Remote' },
+                            { value: 'internship', label: 'Internship' },
+                        ],
+                    },
+                    { key: 'excerpt', type: 'richtext', label: 'Short Summary', wide: true, compact: true },
+                    { key: 'is_active', type: 'toggle', label: 'Active on careers page' },
+                    { key: 'sort_order', type: 'number', label: 'Sort Order' },
+                ],
+            },
+            {
+                id: 'description',
+                title: 'Role Description',
+                fields: [{ key: 'description', type: 'richtext', label: 'Description', wide: true }],
+            },
+            {
+                id: 'requirements',
+                title: 'Requirements',
+                fields: [{ key: 'requirements', type: 'list', label: 'Requirements', wide: true }],
             },
             {
                 id: 'seo',
@@ -297,25 +341,6 @@ export const moduleSchemas = {
                 id: 'seo',
                 title: 'SEO',
                 fields: [{ key: 'seo', type: 'seo' }],
-            },
-        ],
-    },
-    contacts: {
-        sections: [
-            {
-                id: 'inquiry',
-                title: 'Inquiry Details',
-                description: 'Read-only submission from a website form.',
-                fields: [
-                    { key: 'name', type: 'readonly', label: 'Name' },
-                    { key: 'email', type: 'readonly', label: 'Email' },
-                    { key: 'phone', type: 'readonly', label: 'Phone' },
-                    { key: 'company', type: 'readonly', label: 'Company' },
-                    { key: 'service', type: 'readonly', label: 'Service Interest' },
-                    { key: 'budget', type: 'readonly', label: 'Budget' },
-                    { key: 'message', type: 'readonly', label: 'Message', wide: true },
-                    { key: 'read_at', type: 'datetime', label: 'Mark as read at' },
-                ],
             },
         ],
     },

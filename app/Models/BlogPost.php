@@ -15,4 +15,13 @@ class BlogPost extends Model
     {
         return $this->belongsTo(BlogCategory::class, 'blog_category_id');
     }
+
+    public function scopePublished($query)
+    {
+        return $query
+            ->where('status', 'published')
+            ->where(function ($builder) {
+                $builder->whereNull('published_at')->orWhere('published_at', '<=', now());
+            });
+    }
 }

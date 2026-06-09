@@ -3,10 +3,10 @@ import { Card, ResponsiveImage, Section } from '../../Components/Public';
 import RichTextContent from '../../Components/Cms/RichTextContent';
 import PageSection from '../../Components/PageBuilder/PageSection';
 
-export default function StaticPage({ settings, title, page, stats = [], team = [], formsByShortcode = {} }) {
+export default function StaticPage({ settings, seo, title, page, stats = [], team = [], formsByShortcode = {} }) {
     return (
-        <PublicLayout settings={settings} title={title}>
-            <Section eyebrow="Page" title={title} subtitle={page?.seo?.description}>
+        <PublicLayout settings={settings} seo={seo}>
+            <Section pageHeading eyebrow="Page" title={title} subtitle={page?.seo?.description}>
                 <ResponsiveImage media={page?.banner_media} src={page?.banner_path} alt={title} className="mb-8 h-80 w-full rounded-[2.5rem] object-cover" width={1400} />
                 {page?.content && (
                     <Card>
